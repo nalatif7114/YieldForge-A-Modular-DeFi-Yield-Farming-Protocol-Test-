@@ -4,7 +4,7 @@ import * as path from "path";
 
 async function main() {
   console.log(`====================================================`);
-  console.log(`Starting YieldForgeToken Deployment on network: [ ${network.name} ]`);
+  console.log(`Starting YieldForge Multi-Contract Deployment: [ ${network.name} ]`);
   console.log(`====================================================`);
 
   const [deployer] = await ethers.getSigners();
@@ -13,57 +13,85 @@ async function main() {
   const balance = await ethers.provider.getBalance(deployer.address);
   console.log(`Deployer ETH Balance: ${ethers.formatEther(balance)} ETH`);
 
-  // Deploy YieldForgeToken contract
+  // 1. Deploy YieldForgeToken (YFT)
   const YieldForgeTokenFactory = await ethers.getContractFactory("YieldForgeToken");
   const token = await YieldForgeTokenFactory.deploy(deployer.address);
   await token.waitForDeployment();
-
   const tokenAddress = await token.getAddress();
-  console.log(`YieldForgeToken (YFT) deployed successfully to: ${tokenAddress}`);
+  console.log(`YieldForgeToken (YFT) deployed to: ${tokenAddress}`);
 
-  // Mint initial test supply to deployer for local testing (e.g. 100,000 YFT)
+  // 2. Deploy YieldForgeStaking
+  const YieldForgeStakingFactory = await ethers.getContractFactory("YieldForgeStaking");
+  const staking = await YieldForgeStakingFactory.deploy(tokenAddress, deployer.address);
+  await staking.waitForDeployment();
+  const stakingAddress = await staking.getAddress();
+  console.log(`YieldForgeStaking deployed to: ${stakingAddress}`);
+
+  // 3. Mint initial test supply to deployer for testing (e.g. 100,000 YFT)
   const INITIAL_MINT = ethers.parseEther("100000");
   const mintTx = await token.mint(deployer.address, INITIAL_MINT);
   await mintTx.wait();
-  console.log(`Minted ${ethers.formatEther(INITIAL_MINT)} YFT test tokens to deployer: ${deployer.address}`);
+  console.log(`Minted ${ethers.formatEther(INITIAL_MINT)} YFT test tokens to deployer.`);
 
-  // Export Artifacts (ABI & Deployed Address) for Frontend & Record-keeping
-  const artifactPath = path.join(__dirname, "../artifacts/contracts/YieldForgeToken.sol/YieldForgeToken.json");
-  const artifactRaw = fs.readFileSync(artifactPath, "utf8");
-  const artifact = JSON.parse(artifactRaw);
+  // 4. Read Artifact ABIs
+  const tokenArtifactPath = path.join(__dirname, "../artifacts/contracts/YieldForgeToken.sol/YieldForgeToken.json");
+  const tokenArtifact = JSON.parse(fs.readFileSync(tokenArtifactPath, "utf8"));
 
-  const deploymentData = {
+  const stakingArtifactPath = path.join(__dirname, "../artifacts/contracts/YieldForgeStaking.sol/YieldForgeStaking.json");
+  const stakingArtifact = JSON.parse(fs.readFileSync(stakingArtifactPath, "utf8"));
+
+  const deploymentMetaData = {
     network: network.name,
     chainId: network.config.chainId || 31337,
-    address: tokenAddress,
     deployer: deployer.address,
     deployedAt: new Date().toISOString(),
-    abi: artifact.abi,
+    contracts: {
+      YieldForgeToken: {
+        address: tokenAddress,
+        abi: tokenArtifact.abi,
+      },
+      YieldForgeStaking: {
+        address: stakingAddress,
+        abi: stakingArtifact.abi,
+      },
+    },
   };
 
-  // Save to contracts/deployments/<network>.json
+  // 5. Save to contracts/deployments/<network>.json
   const deploymentsDir = path.join(__dirname, "../deployments");
   if (!fs.existsSync(deploymentsDir)) {
     fs.mkdirSync(deploymentsDir, { recursive: true });
   }
   const deploymentFilePath = path.join(deploymentsDir, `${network.name}.json`);
-  fs.writeFileSync(deploymentFilePath, JSON.stringify(deploymentData, null, 2));
-  console.log(`Saved contract deployment metadata to: ${deploymentFilePath}`);
+  fs.writeFileSync(deploymentFilePath, JSON.stringify(deploymentMetaData, null, 2));
+  console.log(`Saved deployment log to: ${deploymentFilePath}`);
 
-  // Also export contract data to frontend/src/contracts/YieldForgeToken.json for seamless Web3 integration
-  const frontendContractsDir = path.join(__dirname, "../../frontend/src/contracts");
-  if (!fs.existsSync(frontendContractsDir)) {
-    fs.mkdirSync(frontendContractsDir, { recursive: true });
+  // 6. Save individually into frontend/src/contracts/ for clean React hook access
+  const frontendDir = path.join(__dirname, "../../frontend/src/contracts");
+  if (!fs.existsSync(frontendDir)) {
+    fs.mkdirSync(frontendDir, { recursive: true });
   }
+
   fs.writeFileSync(
-    path.join(frontendContractsDir, "YieldForgeToken.json"),
-    JSON.stringify(deploymentData, null, 2)
+    path.join(frontendDir, "YieldForgeToken.json"),
+    JSON.stringify({ address: tokenAddress, abi: tokenArtifact.abi }, null, 2)
   );
-  console.log(`Exported ABI & Address to Frontend at: ${path.join(frontendContractsDir, "YieldForgeToken.json")}`);
+
+  fs.writeFileSync(
+    path.join(frontendDir, "YieldForgeStaking.json"),
+    JSON.stringify({ address: stakingAddress, abi: stakingArtifact.abi }, null, 2)
+  );
+
+  fs.writeFileSync(
+    path.join(frontendDir, "deployments.json"),
+    JSON.stringify(deploymentMetaData, null, 2)
+  );
+
+  console.log(`Exported YFT & Staking ABIs to Frontend at: ${frontendDir}`);
   console.log(`====================================================`);
 }
 
 main().catch((error) => {
-  console.error("Deployment failed with error:", error);
+  console.error("Deployment script failed:", error);
   process.exitCode = 1;
 });

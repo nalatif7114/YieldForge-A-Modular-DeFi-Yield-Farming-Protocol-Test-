@@ -1,0 +1,19 @@
+# Node.js
+node_modules/
+**/node_modules/
+
+# Hardhat
+contracts/artifacts/
+contracts/cache/
+contracts/typechain-types/
+
+# Next.js
+frontend/.next/
+
+# Environment
+**/.env
+**/.env.local
+
+# Logs
+npm-debug.log*
+yarn-error.log*

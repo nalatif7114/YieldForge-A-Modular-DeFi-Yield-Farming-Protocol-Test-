@@ -5,9 +5,12 @@ import Link from "next/link";
 import { ArrowUpRight, Activity, Cpu, Layers } from "lucide-react";
 import { useProtocolStore } from "@/store/useProtocolStore";
 import { ConnectButton } from "@/components/ConnectButton";
+import { MagneticButton } from "@/components/ui/MagneticButton";
+import { TextReveal } from "@/components/ui/TextReveal";
+import { PerspectiveGlowBorder } from "@/components/ui/PerspectiveGlowBorder";
 
 export function ControlRoomHUD() {
-  const { scrollProgress, isWalletConnected, txState } = useProtocolStore();
+  const { scrollProgress, isWalletConnected } = useProtocolStore();
 
   const stages = [
     "01 OBSERVE",
@@ -27,7 +30,7 @@ export function ControlRoomHUD() {
     <div className="relative z-30 pointer-events-none text-white selection:bg-indigo-500/30 font-sans">
       
       {/* Top Header Control Bar */}
-      <header className="fixed top-0 left-0 right-0 z-50 py-6 px-6 sm:px-10 flex items-center justify-between backdrop-blur-md bg-[#050816]/40 border-b border-white/[0.06] pointer-events-auto">
+      <header className="fixed top-0 left-0 right-0 z-50 py-5 px-6 sm:px-10 flex items-center justify-between backdrop-blur-md bg-[#050816]/50 border-b border-white/[0.06] pointer-events-auto">
         <Link href="/" className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center font-mono text-xs font-bold text-indigo-400">
             YF
@@ -57,7 +60,7 @@ export function ControlRoomHUD() {
       {/* Main Vision Pro Minimalist Copy (Section 1) */}
       <section className="min-h-screen flex flex-col justify-center px-6 sm:px-12 lg:px-20 max-w-4xl pt-24 pointer-events-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="space-y-6"
@@ -67,12 +70,9 @@ export function ControlRoomHUD() {
             <span>Live Protocol Control Room</span>
           </div>
 
-          {/* Bold Ultra-Minimal Headline */}
+          {/* Bold Headline with Handcrafted TextReveal */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.05]">
-            The Protocol <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-200 to-sky-300">
-              Never Sleeps.
-            </span>
+            <TextReveal text="The Protocol Never Sleeps." />
           </h1>
 
           {/* One Precision Sentence */}
@@ -81,22 +81,21 @@ export function ControlRoomHUD() {
           </p>
 
           <div className="pt-4 flex items-center gap-4">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-xs bg-white text-slate-950 hover:bg-slate-100 transition-all shadow-lg shadow-white/10"
-            >
-              <span>Launch Control Room</span>
-              <ArrowUpRight className="w-4 h-4" />
+            <Link href="/dashboard">
+              <MagneticButton variant="primary">
+                <span>Launch Control Room</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </MagneticButton>
             </Link>
           </div>
         </motion.div>
       </section>
 
-      {/* Scroll Lifecycle Sections */}
+      {/* Scroll Lifecycle Sections with PerspectiveGlowBorder */}
       <div className="px-6 sm:px-12 lg:px-20 max-w-7xl mx-auto space-y-[80vh] pb-[30vh]">
         
         {/* Section 2: Deposit */}
-        <section className="pointer-events-auto max-w-lg p-8 rounded-3xl bg-[#050816]/75 border border-white/10 backdrop-blur-2xl shadow-2xl space-y-4">
+        <PerspectiveGlowBorder className="pointer-events-auto max-w-lg p-8 space-y-4">
           <span className="text-[11px] font-mono uppercase tracking-widest text-sky-400">02 // Input Gateway</span>
           <h2 className="text-2xl font-bold text-white">Deposit Capital Conduit</h2>
           <p className="text-xs text-slate-400 leading-relaxed font-normal">
@@ -106,10 +105,10 @@ export function ControlRoomHUD() {
             <Layers className="w-4 h-4 text-sky-400" />
             <span>Checks-Effects-Interactions Enforced</span>
           </div>
-        </section>
+        </PerspectiveGlowBorder>
 
         {/* Section 3: Validation */}
-        <section className="pointer-events-auto max-w-lg p-8 rounded-3xl bg-[#050816]/75 border border-white/10 backdrop-blur-2xl shadow-2xl space-y-4 ml-auto">
+        <PerspectiveGlowBorder className="pointer-events-auto max-w-lg p-8 space-y-4 ml-auto">
           <span className="text-[11px] font-mono uppercase tracking-widest text-indigo-400">03 // Consensus Mesh</span>
           <h2 className="text-2xl font-bold text-white">Validator Synchronization</h2>
           <p className="text-xs text-slate-400 leading-relaxed font-normal">
@@ -119,32 +118,31 @@ export function ControlRoomHUD() {
             <Activity className="w-4 h-4 text-indigo-400" />
             <span>Sync Rate: 2.5 Hz</span>
           </div>
-        </section>
+        </PerspectiveGlowBorder>
 
         {/* Section 4: Yield Engine */}
-        <section className="pointer-events-auto max-w-lg p-8 rounded-3xl bg-[#050816]/75 border border-white/10 backdrop-blur-2xl shadow-2xl space-y-4">
+        <PerspectiveGlowBorder className="pointer-events-auto max-w-lg p-8 space-y-4">
           <span className="text-[11px] font-mono uppercase tracking-widest text-violet-400">04 // Mechanical Core</span>
           <h2 className="text-2xl font-bold text-white">Automated Compounding</h2>
           <p className="text-xs text-slate-400 leading-relaxed font-normal">
             The mechanical engine computes yield allocations per block without manual intervention or lock friction.
           </p>
-        </section>
+        </PerspectiveGlowBorder>
 
         {/* Section 5: Rewards */}
-        <section className="pointer-events-auto max-w-lg p-8 rounded-3xl bg-[#050816]/75 border border-white/10 backdrop-blur-2xl shadow-2xl space-y-4 ml-auto">
+        <PerspectiveGlowBorder className="pointer-events-auto max-w-lg p-8 space-y-4 ml-auto">
           <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400">05 // Value Extraction</span>
           <h2 className="text-2xl font-bold text-white">Reward Beam Distribution</h2>
           <p className="text-xs text-slate-400 leading-relaxed font-normal">
             Processed yield rewards illuminate in emerald green upon successful distribution back to wallet storage.
           </p>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-xs bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
-          >
-            <span>Open Staking App</span>
-            <ArrowUpRight className="w-4 h-4" />
+          <Link href="/dashboard">
+            <MagneticButton variant="emerald">
+              <span>Open Staking App</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </MagneticButton>
           </Link>
-        </section>
+        </PerspectiveGlowBorder>
 
       </div>
 

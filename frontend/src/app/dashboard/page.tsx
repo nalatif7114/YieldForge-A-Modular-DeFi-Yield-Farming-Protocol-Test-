@@ -1,5 +1,7 @@
-import { Dashboard } from "@/components/Dashboard";
+"use client";
+
+import { BehavioralDashboard } from "@/components/telemetry/BehavioralDashboard";
 
 export default function DashboardPage() {
-  return <Dashboard />;
+  return <BehavioralDashboard />;
 }

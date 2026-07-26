@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { ConsensusEngine } from "@/engine/ConsensusEngine";
 
 export type ProtocolTxState = "idle" | "staking" | "unstaking" | "claiming";
 
@@ -41,11 +42,15 @@ export const useProtocolStore = create<ProtocolState>((set) => ({
 
   triggerStakingEvent: () => {
     set({ txState: "staking" });
-    setTimeout(() => set({ txState: "idle" }), 4500);
+    ConsensusEngine.submitTransaction("staking").then(() => {
+      set({ txState: "idle" });
+    });
   },
 
   triggerClaimEvent: () => {
     set({ txState: "claiming", rewardEnergyPulse: 1 });
-    setTimeout(() => set({ txState: "idle", rewardEnergyPulse: 0 }), 4500);
+    ConsensusEngine.submitTransaction("claiming").then(() => {
+      set({ txState: "idle", rewardEnergyPulse: 0 });
+    });
   },
 }));

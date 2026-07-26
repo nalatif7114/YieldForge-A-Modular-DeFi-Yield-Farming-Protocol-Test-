@@ -8,6 +8,7 @@ interface MagneticButtonProps {
   onClick?: () => void;
   className?: string;
   variant?: "primary" | "secondary" | "emerald";
+  disabled?: boolean;
 }
 
 /**
@@ -20,11 +21,13 @@ export function MagneticButton({
   onClick,
   className = "",
   variant = "primary",
+  disabled = false,
 }: MagneticButtonProps) {
   const buttonRef = useRef<HTMLDivElement>(null!);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (disabled) return;
     const { clientX, clientY } = e;
     const { left, top, width, height } = buttonRef.current.getBoundingClientRect();
     const centerX = left + width / 2;
@@ -54,8 +57,8 @@ export function MagneticButton({
       onMouseLeave={handleMouseLeave}
       animate={{ x: position.x, y: position.y }}
       transition={{ type: "spring", stiffness: 180, damping: 14, mass: 0.1 }}
-      onClick={onClick}
-      className={`inline-block cursor-pointer select-none rounded-xl ${className}`}
+      onClick={disabled ? undefined : onClick}
+      className={`inline-block ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"} select-none rounded-xl ${className}`}
     >
       <div
         className={`px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors ${variantStyles[variant]}`}

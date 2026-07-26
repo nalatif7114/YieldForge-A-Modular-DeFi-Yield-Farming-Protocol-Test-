@@ -5,9 +5,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Zap, Layers } from "lucide-react";
 
-// Dynamically import 3D Canvas with SSR disabled
-const YieldReactorCanvas = dynamic(
-  () => import("../3d/YieldReactorCanvas").then((mod) => mod.YieldReactorCanvas),
+// Dynamically import ConsensusCanvas with SSR disabled
+const ConsensusCanvas = dynamic(
+  () => import("../3d/ConsensusCanvas").then((mod) => mod.ConsensusCanvas),
   { ssr: false }
 );
 
@@ -110,7 +110,7 @@ export function HeroSection() {
           </div>
         </motion.div>
 
-        {/* Right Column: 3D Reactor Display */}
+        {/* Right Column: Hero Canvas (ConsensusCanvas) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -120,19 +120,8 @@ export function HeroSection() {
           {/* Subtle Vignette Overlay */}
           <div className="absolute inset-0 bg-radial-vignette pointer-events-none z-10"></div>
 
-          {/* Reactor Title Badge */}
-          <div className="absolute top-5 left-5 z-20 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-white/10 text-[11px] font-mono text-slate-300 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Yield Reactor Core</span>
-          </div>
-
-          {/* 3D Canvas Container */}
-          <YieldReactorCanvas />
-
-          {/* Micro Status Widget */}
-          <div className="absolute bottom-5 right-5 z-20 px-3.5 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-[11px] font-mono text-slate-400 backdrop-blur-md">
-            Status: <span className="text-emerald-400">Compounding</span>
-          </div>
+          {/* Hero Canvas displaying ConsensusCanvas */}
+          <ConsensusCanvas className="w-full h-full" />
         </motion.div>
 
       </div>

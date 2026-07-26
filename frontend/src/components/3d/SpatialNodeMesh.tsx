@@ -7,57 +7,66 @@ import { useConsensusEngine } from "@/hooks/useConsensusEngine";
 import { CinematicConsensusCamera } from "./CinematicConsensusCamera";
 
 /**
- * 3D Coordinates for 4 Validator Nodes in Vector Topology
+ * Project Helios 8-Node Infrastructure Topology
  */
-const NODE_POSITIONS: Record<number, THREE.Vector3> = {
-  1: new THREE.Vector3(-2.2, 0.8, 0.5),   // Node A - Primary Ingestion
-  2: new THREE.Vector3(0.8, 1.6, -1.0),   // Node B - Relay East
-  3: new THREE.Vector3(-0.5, -1.4, 0.8),  // Node C - Relay West
-  4: new THREE.Vector3(2.5, -0.2, -0.4),  // Node D - State Commit Finalizer
+const HELIOS_8NODE_TOPOLOGY: Record<number, THREE.Vector3> = {
+  1: new THREE.Vector3(0.0, 3.2, -0.8),    // Top Apex Validator
+  2: new THREE.Vector3(-3.6, 1.8, 0.4),   // North-West Relay
+  3: new THREE.Vector3(3.6, 1.8, -0.6),    // North-East Relay
+  4: new THREE.Vector3(-4.5, -0.4, 0.6),   // Primary Ingestion Endpoint
+  5: new THREE.Vector3(4.5, -0.4, -0.4),   // Finalizer Commit Endpoint
+  6: new THREE.Vector3(-3.4, -2.4, 0.2),   // South-West Relay
+  7: new THREE.Vector3(3.4, -2.4, -0.8),   // South-East Relay
+  8: new THREE.Vector3(0.0, -3.4, -1.0),   // Bottom Anchor Validator
 };
 
-const CONNECTIONS = [
+const HELIOS_CONNECTIONS = [
   { from: 1, to: 2, id: "1-2" },
   { from: 1, to: 3, id: "1-3" },
   { from: 2, to: 4, id: "2-4" },
+  { from: 2, to: 5, id: "2-5" },
   { from: 3, to: 4, id: "3-4" },
+  { from: 3, to: 5, id: "3-5" },
+  { from: 4, to: 6, id: "4-6" },
+  { from: 4, to: 5, id: "4-5" },
+  { from: 5, to: 7, id: "5-7" },
+  { from: 6, to: 8, id: "6-8" },
+  { from: 7, to: 8, id: "7-8" },
 ];
 
 /**
- * SpatialNodeMesh: 3D Consensus Network Visualizer driven strictly by ConsensusEngine.
+ * Phase 4: Protocol Event Renderer (SpatialNodeMesh)
  * 
- * Mechanics:
- * - ConsensusWave only visualizes state (zero UI timers).
- * - A 3D packet travels between validator nodes based on ConsensusEngine state.
- * - Connection lines illuminate ONLY while the packet passes through that specific ray.
- * - Return to calm idle afterwards.
+ * Rules:
+ * - Pure renderer translating ConsensusEngine state into physical node & ray responses.
+ * - Zero timers in UI.
+ * - Packet: Simple, lightweight 0.065 unit protocol message sphere (no plasma/fireballs).
+ * - Node Response: Understated edge highlights & micro elevation (nothing theatrical).
+ * - Edge Illumination: ONLY traversed active edges illuminate to 60%; others stay at 10%.
+ * - Camera Bias: Observer camera shifts max 2%.
  */
 export function SpatialNodeMesh() {
   const nodesGroupRef = useRef<THREE.Group>(null!);
-  const packetRefA = useRef<THREE.Mesh>(null!);
-  const packetRefB = useRef<THREE.Mesh>(null!);
+  const packetMeshARef = useRef<THREE.Mesh>(null!);
+  const packetMeshBRef = useRef<THREE.Mesh>(null!);
   const lineMeshRefs = useRef<Array<THREE.LineSegments | null>>([]);
   
   const { state, activeNodes, activeConnections } = useConsensusEngine();
 
-  // Progress interpolation for 3D travelling packet (0 -> 1)
+  // Smooth linear packet progress across traversed edges
   const packetProgress = useRef(0);
 
-  // 4 Validator Nodes
   const validatorNodes = useMemo(() => {
-    return [
-      { id: 1, basePos: NODE_POSITIONS[1], label: "Node A" },
-      { id: 2, basePos: NODE_POSITIONS[2], label: "Node B" },
-      { id: 3, basePos: NODE_POSITIONS[3], label: "Node C" },
-      { id: 4, basePos: NODE_POSITIONS[4], label: "Node D" },
-    ];
+    return Object.entries(HELIOS_8NODE_TOPOLOGY).map(([idStr, basePos]) => ({
+      id: Number(idStr),
+      basePos,
+    }));
   }, []);
 
-  // Pre-generate connection line geometries to avoid SVG type collision in React JSX
   const connectionGeometries = useMemo(() => {
-    return CONNECTIONS.map((conn) => {
-      const p1 = NODE_POSITIONS[conn.from];
-      const p2 = NODE_POSITIONS[conn.to];
+    return HELIOS_CONNECTIONS.map((conn) => {
+      const p1 = HELIOS_8NODE_TOPOLOGY[conn.from];
+      const p2 = HELIOS_8NODE_TOPOLOGY[conn.to];
       const points = new Float32Array([p1.x, p1.y, p1.z, p2.x, p2.y, p2.z]);
       const geo = new THREE.BufferGeometry();
       geo.setAttribute("position", new THREE.BufferAttribute(points, 3));
@@ -68,75 +77,88 @@ export function SpatialNodeMesh() {
   useFrame((stateCtx, delta) => {
     const t = stateCtx.clock.getElapsedTime();
 
-    // 1. Subtle Micro-Floating per Validator Node (No spinning!)
+    // 1. Microscopic Node Floating (< 1px visual drift, almost static)
     if (nodesGroupRef.current) {
       nodesGroupRef.current.children.forEach((groupChild, i) => {
         const node = validatorNodes[i];
         if (node) {
-          const floatY = Math.sin(t * 0.7 + node.id * 1.3) * 0.04;
-          const floatX = Math.cos(t * 0.5 + node.id * 0.9) * 0.02;
+          const isValidating = activeNodes.includes(node.id);
+          const microY = Math.sin(t * 0.35 + node.id * 0.9) * 0.012;
+          const microX = Math.cos(t * 0.25 + node.id * 0.7) * 0.008;
+          
+          // Understated elevation response when validating (micro +0.03 shift)
+          const elevationOffset = isValidating ? 0.03 : 0.0;
+          const currentY = groupChild.position.y;
+          const targetY = node.basePos.y + microY + elevationOffset;
+
           groupChild.position.set(
-            node.basePos.x + floatX,
-            node.basePos.y + floatY,
+            node.basePos.x + microX,
+            THREE.MathUtils.damp(currentY, targetY, 4, delta),
             node.basePos.z
           );
         }
       });
     }
 
-    // 2. Traveling 3D Consensus Packet Interpolation
+    // 2. Packet Lifecycle & Traversal
     if (state === "PROPAGATING") {
-      packetProgress.current = THREE.MathUtils.damp(packetProgress.current, 1, 4, delta);
-    } else if (state === "TRANSACTION_RECEIVED" || state === "VALIDATING") {
-      packetProgress.current = 0;
+      packetProgress.current = THREE.MathUtils.damp(packetProgress.current, 1, 3.5, delta);
     } else {
       packetProgress.current = 0;
     }
 
     const p = packetProgress.current;
 
-    // Update Packet A (Node 1 -> Node 2 path)
-    if (packetRefA.current) {
+    // Primary Ingestion Packet A (Node 4 -> Node 5 Commit Path)
+    if (packetMeshARef.current) {
       if (state === "TRANSACTION_RECEIVED" || state === "VALIDATING") {
-        packetRefA.current.position.copy(NODE_POSITIONS[1]);
-        packetRefA.current.visible = true;
+        packetMeshARef.current.position.copy(HELIOS_8NODE_TOPOLOGY[4]);
+        packetMeshARef.current.visible = true;
       } else if (state === "PROPAGATING") {
-        packetRefA.current.position.lerpVectors(NODE_POSITIONS[1], NODE_POSITIONS[2], p);
-        packetRefA.current.visible = true;
+        packetMeshARef.current.position.lerpVectors(
+          HELIOS_8NODE_TOPOLOGY[4],
+          HELIOS_8NODE_TOPOLOGY[5],
+          p
+        );
+        packetMeshARef.current.visible = true;
       } else {
-        packetRefA.current.visible = false;
+        packetMeshARef.current.visible = false;
       }
     }
 
-    // Update Packet B (Node 1 -> Node 3 path)
-    if (packetRefB.current) {
+    // Secondary Relay Packet B (Node 4 -> Node 2 Relay Path)
+    if (packetMeshBRef.current) {
       if (state === "PROPAGATING") {
-        packetRefB.current.position.lerpVectors(NODE_POSITIONS[1], NODE_POSITIONS[3], p);
-        packetRefB.current.visible = true;
+        packetMeshBRef.current.position.lerpVectors(
+          HELIOS_8NODE_TOPOLOGY[4],
+          HELIOS_8NODE_TOPOLOGY[2],
+          p
+        );
+        packetMeshBRef.current.visible = true;
       } else {
-        packetRefB.current.visible = false;
+        packetMeshBRef.current.visible = false;
       }
     }
 
-    // 3. Selective Connection Line Illumination (ONLY while packet passes!)
-    CONNECTIONS.forEach((conn, index) => {
-      const lineSegmentsMesh = lineMeshRefs.current[index];
-      if (lineSegmentsMesh) {
-        const mat = lineSegmentsMesh.material as THREE.LineBasicMaterial;
+    // 3. Selective Edge Illumination (Idle = 10% opacity; ONLY active path illuminates to 60%)
+    HELIOS_CONNECTIONS.forEach((conn, index) => {
+      const lineMesh = lineMeshRefs.current[index];
+      if (lineMesh) {
+        const mat = lineMesh.material as THREE.LineBasicMaterial;
         const isRayActive = activeConnections.some(
           (c) => (c.from === conn.from && c.to === conn.to) || (c.from === conn.to && c.to === conn.from)
         );
 
-        // Connection line illuminates ONLY when packet is actively travelling across it
-        const targetOpacity = isRayActive ? 0.65 : 0.12;
-        mat.opacity = THREE.MathUtils.damp(mat.opacity, targetOpacity, 6, delta);
+        // ONLY traversed active edge illuminates
+        const targetOpacity = isRayActive ? 0.60 : 0.10;
+        mat.opacity = THREE.MathUtils.damp(mat.opacity, targetOpacity, 5, delta);
 
         if (isRayActive) {
-          mat.color.set("#6366f1"); // Active indigo propagation ray
+          mat.color.set("#6366f1"); // Active propagation path
         } else if (state === "CONSENSUS_REACHED" || state === "STATE_COMMITTED") {
-          mat.color.set("#22c55e"); // Finalized green
+          mat.color.set("#22c55e"); // Finalized lock
         } else {
-          mat.color.set("#475569"); // Dim idle grey
+          mat.color.set("#1e293b"); // 10% idle slate
         }
       }
     });
@@ -144,11 +166,11 @@ export function SpatialNodeMesh() {
 
   return (
     <group>
-      {/* Cinematic Camera owning all movement */}
+      {/* Observer Camera with 2% packet tracking shift */}
       <CinematicConsensusCamera />
 
-      {/* Individual Connection Rays (illuminating selectively via lineSegments) */}
-      {CONNECTIONS.map((conn, idx) => (
+      {/* Extremely Thin WebGL Connection Lines (10% idle opacity) */}
+      {HELIOS_CONNECTIONS.map((conn, idx) => (
         <lineSegments
           key={conn.id}
           ref={(el) => {
@@ -156,67 +178,77 @@ export function SpatialNodeMesh() {
           }}
           geometry={connectionGeometries[idx]}
         >
-          <lineBasicMaterial color="#475569" transparent opacity={0.12} linewidth={1} />
+          <lineBasicMaterial color="#1e293b" transparent opacity={0.10} linewidth={1} />
         </lineSegments>
       ))}
 
-      {/* Travelling 3D Packet Objects (Node 1 -> Node 2/3) */}
-      <mesh ref={packetRefA} visible={false}>
-        <sphereGeometry args={[0.08, 12, 12]} />
-        <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1.2} />
+      {/* Lightweight Protocol Message Packets */}
+      <mesh ref={packetMeshARef} visible={false}>
+        <sphereGeometry args={[0.065, 12, 12]} />
+        <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={0.6} />
       </mesh>
-      <mesh ref={packetRefB} visible={false}>
-        <sphereGeometry args={[0.08, 12, 12]} />
-        <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1.2} />
+      <mesh ref={packetMeshBRef} visible={false}>
+        <sphereGeometry args={[0.065, 12, 12]} />
+        <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={0.6} />
       </mesh>
 
-      {/* 4 Floating Validator Nodes */}
+      {/* Hardware Validator Endpoints */}
       <group ref={nodesGroupRef}>
         {validatorNodes.map((node) => {
           const isValidating = activeNodes.includes(node.id);
           const isFinalized = state === "CONSENSUS_REACHED" || state === "STATE_COMMITTED" || state === "COMPLETE";
 
-          let nodeColor = "#334155";
-          let emissiveIntensity = 0.15;
+          let edgeColor = "#334155";
+          let ledColor = "#1e293b";
+          let ledIntensity = 0.15;
 
           if (isFinalized) {
-            nodeColor = "#22c55e"; // Emerald lock
-            emissiveIntensity = 0.6;
+            edgeColor = "#22c55e"; // Understated emerald finalized outline
+            ledColor = "#22c55e";
+            ledIntensity = 0.5;
           } else if (isValidating) {
-            nodeColor = "#6366f1"; // Indigo validation
-            emissiveIntensity = 0.8;
+            edgeColor = "#6366f1"; // Understated indigo validation outline
+            ledColor = "#6366f1";
+            ledIntensity = 0.7;
           }
 
           return (
             <group key={node.id} position={node.basePos}>
-              {/* Minimal Wireframe Shell */}
+              {/* Dark Metallic Industrial Chassis */}
               <mesh>
-                <icosahedronGeometry args={[0.22, 1]} />
-                <meshBasicMaterial
-                  color={nodeColor}
-                  wireframe
-                  transparent
-                  opacity={isValidating || isFinalized ? 0.4 : 0.15}
-                />
-              </mesh>
-
-              {/* Minimal Core Sphere */}
-              <mesh>
-                <sphereGeometry args={[0.12, 16, 16]} />
+                <boxGeometry args={[0.42, 0.30, 0.42]} />
                 <meshStandardMaterial
-                  color={nodeColor}
-                  emissive={nodeColor}
-                  emissiveIntensity={emissiveIntensity}
-                  roughness={0.2}
-                  metalness={0.8}
+                  color="#090d16"
+                  roughness={0.20}
+                  metalness={0.90}
                 />
               </mesh>
 
-              {/* Controlled Light Bloom */}
+              {/* Minimal Edge Outline Highlight */}
+              <lineSegments>
+                <edgesGeometry args={[new THREE.BoxGeometry(0.42, 0.30, 0.42)]} />
+                <lineBasicMaterial
+                  color={edgeColor}
+                  transparent
+                  opacity={isValidating || isFinalized ? 0.7 : 0.20}
+                />
+              </lineSegments>
+
+              {/* Micro Status LED Endpoint */}
+              <mesh position={[0, 0.16, 0]}>
+                <sphereGeometry args={[0.03, 12, 12]} />
+                <meshStandardMaterial
+                  color={ledColor}
+                  emissive={ledColor}
+                  emissiveIntensity={ledIntensity}
+                />
+              </mesh>
+
+              {/* Subtle Controlled Light */}
               <pointLight
-                color={nodeColor}
-                intensity={isValidating || isFinalized ? 0.8 : 0.15}
-                distance={2.0}
+                color={ledColor}
+                intensity={isValidating || isFinalized ? 0.30 : 0.04}
+                distance={1.5}
               />
             </group>
           );

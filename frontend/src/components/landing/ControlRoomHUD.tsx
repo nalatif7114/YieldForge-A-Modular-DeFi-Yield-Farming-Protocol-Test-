@@ -4,13 +4,16 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowUpRight, Activity, Cpu, Layers } from "lucide-react";
 import { useProtocolStore } from "@/store/useProtocolStore";
+import { useConsensusEngine } from "@/hooks/useConsensusEngine";
 import { ConnectButton } from "@/components/ConnectButton";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { TextReveal } from "@/components/ui/TextReveal";
 import { PerspectiveGlowBorder } from "@/components/ui/PerspectiveGlowBorder";
+import { ConsensusWave } from "@/components/motion/consensus";
 
 export function ControlRoomHUD() {
   const { scrollProgress, isWalletConnected } = useProtocolStore();
+  const { state, submitTransaction, isProcessing } = useConsensusEngine();
 
   const stages = [
     "01 OBSERVE",
@@ -47,11 +50,11 @@ export function ControlRoomHUD() {
         <div className="flex items-center gap-6 text-xs font-mono text-slate-400">
           <div className="hidden lg:flex items-center gap-2">
             <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span>Telemetry: <strong className="text-white">14.2 TPS</strong></span>
+            <span>Telemetry: <strong className="text-white">{isProcessing ? "48.6 TPS" : "14.2 TPS"}</strong></span>
           </div>
           <div className="hidden lg:flex items-center gap-2">
             <Cpu className="w-3.5 h-3.5 text-sky-400" />
-            <span>Status: <strong className="text-emerald-400">{isWalletConnected ? "Active" : "Standby"}</strong></span>
+            <span>Consensus State: <strong className={isProcessing ? "text-amber-400 animate-pulse font-bold" : "text-emerald-400 font-bold"}>{state}</strong></span>
           </div>
           <ConnectButton />
         </div>
@@ -67,7 +70,7 @@ export function ControlRoomHUD() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[11px] font-mono text-slate-300">
             <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-            <span>Live Protocol Control Room</span>
+            <span>Project Helios — Consensus Engine Active</span>
           </div>
 
           {/* Bold Headline with Handcrafted TextReveal */}
@@ -77,14 +80,18 @@ export function ControlRoomHUD() {
 
           {/* One Precision Sentence */}
           <p className="text-base sm:text-lg text-slate-400 max-w-md font-normal leading-relaxed">
-            Real-time state execution and automated compounding infrastructure on Ethereum.
+            Real-time observable distributed consensus network on Ethereum Sepolia.
           </p>
 
           <div className="pt-4 flex items-center gap-4">
+            <MagneticButton onClick={() => submitTransaction("staking")} disabled={isProcessing} variant="primary">
+              <span>{isProcessing ? `Processing (${state})...` : "Trigger Consensus Cycle"}</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </MagneticButton>
+
             <Link href="/dashboard">
-              <MagneticButton variant="primary">
-                <span>Launch Control Room</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
+              <MagneticButton variant="secondary">
+                <span>Launch Telemetry Room</span>
               </MagneticButton>
             </Link>
           </div>
@@ -96,45 +103,42 @@ export function ControlRoomHUD() {
         
         {/* Section 2: Deposit */}
         <PerspectiveGlowBorder className="pointer-events-auto max-w-lg p-8 space-y-4">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-sky-400">02 // Input Gateway</span>
-          <h2 className="text-2xl font-bold text-white">Deposit Capital Conduit</h2>
+          <span className="text-[11px] font-mono uppercase tracking-widest text-sky-400">02 // Ingestion Endpoint</span>
+          <h2 className="text-2xl font-bold text-white">Mempool Transaction Ingestion</h2>
           <p className="text-xs text-slate-400 leading-relaxed font-normal">
-            Data capsules continuously enter the contract via gas-optimized ERC-20 transferFrom streams.
+            Payload capsules enter primary validator endpoints via gas-optimized protocol transaction streams.
           </p>
           <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 text-xs font-mono text-slate-400 flex items-center gap-2">
             <Layers className="w-4 h-4 text-sky-400" />
-            <span>Checks-Effects-Interactions Enforced</span>
+            <span>Zero-Knowledge Proof Verification</span>
           </div>
         </PerspectiveGlowBorder>
 
-        {/* Section 3: Validation */}
+        {/* Section 3: Validation & Consensus Wave */}
         <PerspectiveGlowBorder className="pointer-events-auto max-w-lg p-8 space-y-4 ml-auto">
           <span className="text-[11px] font-mono uppercase tracking-widest text-indigo-400">03 // Consensus Mesh</span>
           <h2 className="text-2xl font-bold text-white">Validator Synchronization</h2>
           <p className="text-xs text-slate-400 leading-relaxed font-normal">
-            Validator nodes exchange network state proofs to verify block header integrity on every confirmation.
+            Validator nodes exchange network state proofs to achieve BFT supermajority finality.
           </p>
-          <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 text-xs font-mono text-slate-400 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-indigo-400" />
-            <span>Sync Rate: 2.5 Hz</span>
-          </div>
+          <ConsensusWave />
         </PerspectiveGlowBorder>
 
         {/* Section 4: Yield Engine */}
         <PerspectiveGlowBorder className="pointer-events-auto max-w-lg p-8 space-y-4">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-violet-400">04 // Mechanical Core</span>
-          <h2 className="text-2xl font-bold text-white">Automated Compounding</h2>
+          <span className="text-[11px] font-mono uppercase tracking-widest text-violet-400">04 // State Commit</span>
+          <h2 className="text-2xl font-bold text-white">State Root Commitment</h2>
           <p className="text-xs text-slate-400 leading-relaxed font-normal">
-            The mechanical engine computes yield allocations per block without manual intervention or lock friction.
+            Merkle tree state roots update and finalize state changes directly into vault storage.
           </p>
         </PerspectiveGlowBorder>
 
         {/* Section 5: Rewards */}
         <PerspectiveGlowBorder className="pointer-events-auto max-w-lg p-8 space-y-4 ml-auto">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400">05 // Value Extraction</span>
-          <h2 className="text-2xl font-bold text-white">Reward Beam Distribution</h2>
+          <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400">05 // State Finality</span>
+          <h2 className="text-2xl font-bold text-white">Transaction Completion</h2>
           <p className="text-xs text-slate-400 leading-relaxed font-normal">
-            Processed yield rewards illuminate in emerald green upon successful distribution back to wallet storage.
+            Distributed consensus cycle completes and returns validator nodes to standby monitoring.
           </p>
           <Link href="/dashboard">
             <MagneticButton variant="emerald">

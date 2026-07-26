@@ -7,9 +7,9 @@ import { ControlRoomHUD } from "@/components/landing/ControlRoomHUD";
 import { SubtleNoiseOverlay } from "@/components/ui/SubtleNoiseOverlay";
 import { ProtocolApplicationLoader } from "@/components/ui/ProtocolApplicationLoader";
 
-// Dynamically import 3D Pipeline Canvas with SSR disabled
-const PipelineCanvas = dynamic(
-  () => import("@/components/3d/Pipeline/PipelineCanvas").then((mod) => mod.PipelineCanvas),
+// Dynamically import ConsensusCanvas (replacing legacy PipelineCanvas) with SSR disabled
+const ConsensusCanvas = dynamic(
+  () => import("@/components/3d/ConsensusCanvas").then((mod) => mod.ConsensusCanvas),
   { ssr: false }
 );
 
@@ -26,9 +26,9 @@ export default function CinematicControlRoomPage() {
         {/* Subtle Analog Noise Texture Layer */}
         <SubtleNoiseOverlay />
 
-        {/* Infinite 100% Viewport 3D Linear Pipeline Canvas */}
+        {/* 100% Viewport 3D Consensus Network Canvas */}
         <div className="fixed inset-0 z-0 pointer-events-auto">
-          <PipelineCanvas />
+          <ConsensusCanvas className="w-full h-full rounded-none border-none" showOverlay={false} />
           <div className="absolute inset-0 bg-radial-vignette pointer-events-none z-10"></div>
         </div>
 

@@ -9,6 +9,7 @@ import {
   switchNetwork,
 } from "@/lib/web3/wallet";
 import { CHAIN_ID } from "@/lib/web3/client";
+import { useProtocolStore } from "@/store/useProtocolStore";
 
 export interface UseWalletReturn {
   account: string | null;
@@ -28,6 +29,8 @@ export function useWallet(): UseWalletReturn {
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { setWalletConnected } = useProtocolStore();
+
   const isConnected = Boolean(account);
   const isCorrectNetwork = chainId === CHAIN_ID;
 
@@ -39,8 +42,10 @@ export function useWallet(): UseWalletReturn {
       const accounts = await getConnectedAccounts();
       if (accounts.length > 0) {
         setAccount(accounts[0]);
+        setWalletConnected(true);
       } else {
         setAccount(null);
+        setWalletConnected(false);
       }
 
       const currentChainId = await getWalletChainId();
@@ -48,7 +53,7 @@ export function useWallet(): UseWalletReturn {
     } catch (err: any) {
       console.error("Error checking wallet connection:", err);
     }
-  }, []);
+  }, [setWalletConnected]);
 
   useEffect(() => {
     checkConnection();
@@ -57,8 +62,10 @@ export function useWallet(): UseWalletReturn {
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length > 0) {
           setAccount(accounts[0]);
+          setWalletConnected(true);
         } else {
           setAccount(null);
+          setWalletConnected(false);
         }
       };
 
@@ -76,7 +83,7 @@ export function useWallet(): UseWalletReturn {
         }
       };
     }
-  }, [checkConnection]);
+  }, [checkConnection, setWalletConnected]);
 
   const connect = async () => {
     setIsConnecting(true);
@@ -86,6 +93,7 @@ export function useWallet(): UseWalletReturn {
       const accounts = await connectWallet();
       if (accounts.length > 0) {
         setAccount(accounts[0]);
+        setWalletConnected(true);
       }
       const currentChainId = await getWalletChainId();
       setChainId(currentChainId);
@@ -98,6 +106,7 @@ export function useWallet(): UseWalletReturn {
 
   const disconnect = () => {
     setAccount(null);
+    setWalletConnected(false);
   };
 
   const switchToTargetNetwork = async () => {

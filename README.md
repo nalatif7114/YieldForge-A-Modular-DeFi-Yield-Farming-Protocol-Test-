@@ -199,13 +199,7 @@ Navigate to `http://localhost:3000` to launch the platform.
 - **Auditable Integrity**: 100% open-source codebase with clean separation of protocol state and presentation layers.
 - **Non-Custodial Architecture**: Cryptographic asset ownership remains strictly with depositors.
 
----
 
-## 🤝 Contributing
-
-Contributions to YieldForge are welcomed from protocol engineers, auditors, and security researchers. Please review our security guidelines and submit pull requests targeting the `main` branch.
-
----
 
 <p align="center">
   <img src="assets/readme/footer-banner.svg" alt="YieldForge Footer Banner" width="100%">

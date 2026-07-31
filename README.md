@@ -16,13 +16,6 @@
 
 ---
 
-## 📡 Live Protocol Telemetry
-
-<p align="center">
-  <img src="assets/readme/status-panel.svg" alt="YieldForge Live Protocol Status Panel" width="100%">
-</p>
-
----
 
 ## 🏛️ Executive Summary
 

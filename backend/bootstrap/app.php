@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Blockchain\Exceptions\BlockchainException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -8,6 +9,7 @@ use Illuminate\Http\Request;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -18,4 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->render(function (BlockchainException $e, Request $request) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'BLOCKCHAIN_ERROR',
+                    'message' => $e->getMessage(),
+                ],
+            ], $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500);
+        });
     })->create();

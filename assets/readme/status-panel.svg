@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="panelBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111111" />
+      <stop offset="100%" stop-color="#161616" />
+    </linearGradient>
+  </defs>
+
+  <style>
+    .title { font-family: -apple-system, BlinkMacSystemFont, 'Geist', 'Inter', sans-serif; font-weight: 700; }
+    .mono { font-family: 'Geist Mono', monospace; }
+  </style>
+
+  <!-- Panel Frame -->
+  <rect width="1000" height="120" rx="16" fill="url(#panelBg)" stroke="rgba(212,175,55,0.12)" stroke-width="1" />
+
+  <!-- 6 Grid Columns -->
+  <!-- Col 1: Protocol Health -->
+  <g transform="translate(24, 20)">
+    <text x="0" y="16" fill="#A1A1AA" font-size="10" class="mono" letter-spacing="1">PROTOCOL HEALTH</text>
+    <text x="0" y="44" fill="#F4F4F4" font-size="20" class="title">98.7%</text>
+    <circle cx="70" cy="38" r="4" fill="#22C55E">
+      <animate attributeName="opacity" values="1;0.4;1" dur="1.8s" repeatCount="indefinite" />
+    </circle>
+    <text x="0" y="66" fill="#22C55E" font-size="10" class="mono">Optimal State</text>
+  </g>
+  <line x1="175" y1="20" x2="175" y2="100" stroke="rgba(212,175,55,0.08)" stroke-width="1" />
+
+  <!-- Col 2: Validators -->
+  <g transform="translate(195, 20)">
+    <text x="0" y="16" fill="#A1A1AA" font-size="10" class="mono" letter-spacing="1">VALIDATORS</text>
+    <text x="0" y="44" fill="#E7C873" font-size="20" class="title">8 / 8</text>
+    <text x="0" y="66" fill="#A1A1AA" font-size="10" class="mono">BFT Supermajority</text>
+  </g>
+  <line x1="340" y1="20" x2="340" y2="100" stroke="rgba(212,175,55,0.08)" stroke-width="1" />
+
+  <!-- Col 3: Network -->
+  <g transform="translate(360, 20)">
+    <text x="0" y="16" fill="#A1A1AA" font-size="10" class="mono" letter-spacing="1">NETWORK STATUS</text>
+    <text x="0" y="44" fill="#22C55E" font-size="20" class="title">Healthy</text>
+    <text x="0" y="66" fill="#A1A1AA" font-size="10" class="mono">0 Faults / 120ms</text>
+  </g>
+  <line x1="510" y1="20" x2="510" y2="100" stroke="rgba(212,175,55,0.08)" stroke-width="1" />
+
+  <!-- Col 4: Consensus -->
+  <g transform="translate(530, 20)">
+    <text x="0" y="16" fill="#A1A1AA" font-size="10" class="mono" letter-spacing="1">CONSENSUS</text>
+    <text x="0" y="44" fill="#D4AF37" font-size="20" class="title">Active</text>
+    <text x="0" y="66" fill="#E7C873" font-size="10" class="mono">Proof Verification</text>
+  </g>
+  <line x1="680" y1="20" x2="680" y2="100" stroke="rgba(212,175,55,0.08)" stroke-width="1" />
+
+  <!-- Col 5: Throughput -->
+  <g transform="translate(700, 20)">
+    <text x="0" y="16" fill="#A1A1AA" font-size="10" class="mono" letter-spacing="1">THROUGHPUT</text>
+    <text x="0" y="44" fill="#F4F4F4" font-size="20" class="title">14.2 TPS</text>
+    <text x="0" y="66" fill="#A1A1AA" font-size="10" class="mono">Peak: 48.6 TPS</text>
+  </g>
+  <line x1="845" y1="20" x2="845" y2="100" stroke="rgba(212,175,55,0.08)" stroke-width="1" />
+
+  <!-- Col 6: TVL -->
+  <g transform="translate(865, 20)">
+    <text x="0" y="16" fill="#A1A1AA" font-size="10" class="mono" letter-spacing="1">TOTAL TVL</text>
+    <text x="0" y="44" fill="#F5E6B8" font-size="20" class="title">$248.5M</text>
+    <text x="0" y="66" fill="#22C55E" font-size="10" class="mono">▲ +24.8% YoY</text>
+  </g>
+</svg>

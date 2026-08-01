@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class BlockchainEndpointsTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();

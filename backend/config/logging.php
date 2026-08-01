@@ -134,6 +134,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'indexer' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/indexer.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

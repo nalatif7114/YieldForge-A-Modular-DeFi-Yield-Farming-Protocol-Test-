@@ -11,6 +11,13 @@ return [
     'retry_delay_ms' => (int) env('BLOCKCHAIN_RPC_RETRY_DELAY_MS', 100),
     'abi_path' => storage_path('blockchain/abis'),
 
+    'sync_batch_size' => (int) env('BLOCKCHAIN_SYNC_BATCH_SIZE', 100),
+    'confirmations' => (int) env('BLOCKCHAIN_CONFIRMATIONS', 1),
+    'poll_interval' => (int) env('BLOCKCHAIN_POLL_INTERVAL', 10),
+    'replay_batch_size' => (int) env('BLOCKCHAIN_REPLAY_BATCH_SIZE', 500),
+    'projection_version' => env('BLOCKCHAIN_PROJECTION_VERSION', '1.0.0'),
+    'indexer_timeout' => (int) env('BLOCKCHAIN_INDEXER_TIMEOUT', 30),
+
     'cache_ttl' => [
         'network' => (int) env('BLOCKCHAIN_CACHE_TTL_NETWORK', 15),
         'pools' => (int) env('BLOCKCHAIN_CACHE_TTL_POOLS', 30),
@@ -18,6 +25,8 @@ return [
         'stakes' => (int) env('BLOCKCHAIN_CACHE_TTL_STAKES', 15),
         'rewards' => (int) env('BLOCKCHAIN_CACHE_TTL_REWARDS', 15),
         'events' => (int) env('BLOCKCHAIN_CACHE_TTL_EVENTS', 15),
+        'stats' => (int) env('BLOCKCHAIN_CACHE_TTL_STATS', 15),
+        'metrics' => (int) env('BLOCKCHAIN_CACHE_TTL_METRICS', 5),
     ],
 
     'contracts' => [

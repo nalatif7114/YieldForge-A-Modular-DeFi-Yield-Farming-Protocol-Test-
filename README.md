@@ -197,3 +197,4 @@ Navigate to `http://localhost:3000` to launch the platform.
 <p align="center">
   <img src="assets/readme/footer-banner.svg" alt="YieldForge Footer Banner" width="100%">
 </p>
+# @athyana23@gmail.com

@@ -18,6 +18,12 @@ return [
     'projection_version' => env('BLOCKCHAIN_PROJECTION_VERSION', '1.0.0'),
     'indexer_timeout' => (int) env('BLOCKCHAIN_INDEXER_TIMEOUT', 30),
 
+    'analytics_snapshot_interval' => (int) env('ANALYTICS_SNAPSHOT_INTERVAL', 300),
+    'history_retention_days' => (int) env('ANALYTICS_RETENTION_DAYS', 365),
+    'aggregation_interval' => (int) env('ANALYTICS_AGGREGATION_INTERVAL', 3600),
+    'analytics_version' => env('ANALYTICS_VERSION', '1.0.0'),
+    'analytics_cache_duration' => (int) env('ANALYTICS_CACHE_TTL', 300),
+
     'cache_ttl' => [
         'network' => (int) env('BLOCKCHAIN_CACHE_TTL_NETWORK', 15),
         'pools' => (int) env('BLOCKCHAIN_CACHE_TTL_POOLS', 30),

@@ -17,7 +17,7 @@
 ---
 
 
-## 🏛️ Executive Summary
+## 🏛️ Executive Summary.
 
 **YieldForge** is a modular, institutional-grade DeFi yield infrastructure platform built for automated capital allocation, validator consensus coordination, and real-time protocol observability on Ethereum.
 

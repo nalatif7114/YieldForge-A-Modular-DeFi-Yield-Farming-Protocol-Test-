@@ -35,7 +35,7 @@ class BlockchainIndexerTest extends TestCase
                             [
                                 'address' => '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
                                 'topics' => [
-                                    '0x9e71bc8eea02a63969f509818f2daeb92bc7264d97b1cd0ef59b30ea9b427dae',
+                                    '0x9e71bc8eea02a63969f509818f2dafb9254532904319f9dbda79b67bd34a5f3d',
                                     '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
                                 ],
                                 'data' => '0x0000000000000000000000000000000000000000000000008782d0d00d400000',

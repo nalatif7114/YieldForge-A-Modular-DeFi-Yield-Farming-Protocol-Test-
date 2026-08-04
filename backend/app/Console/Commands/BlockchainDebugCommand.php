@@ -148,12 +148,14 @@ class BlockchainDebugCommand extends Command
         if (is_array($rawLogs)) {
             foreach ($rawLogs as $log) {
                 $topics = $log['topics'] ?? [];
-                $topic0 = $topics[0] ?? '';
-                $resolvedName = $codec->resolveEventName((string) $topic0);
+                $topic0 = (string) ($topics[0] ?? '');
+                $topic0Clean = trim(strtolower($topic0));
+                $resolvedName = (new EthereumCodec())->resolveEventName($topic0Clean);
 
                 if ($resolvedName === 'UnknownEvent') {
                     $logsDiscarded++;
                     $this->warn("Discarded log in tx {$log['transactionHash']}: Unknown topic0 [{$topic0}]");
+                    $this->line("  Debug compare: len=" . strlen($topic0Clean) . " hex=" . bin2hex($topic0Clean));
                 } else {
                     $logsDecoded++;
                     $this->info("Decoded log in tx {$log['transactionHash']}: Event [{$resolvedName}]");

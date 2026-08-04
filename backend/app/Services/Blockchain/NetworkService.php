@@ -28,7 +28,7 @@ class NetworkService implements NetworkServiceInterface
     {
         $ttl = (int) $this->config->get('blockchain.cache_ttl.network', 15);
 
-        return $this->cache->remember('blockchain:network', $ttl, function (): NetworkDTO {
+        $data = $this->cache->remember('blockchain:network', $ttl, function (): array {
             $startTime = microtime(true);
 
             try {
@@ -40,25 +40,40 @@ class NetworkService implements NetworkServiceInterface
                 $chainId = (int) hexdec(str_replace('0x', '', $chainIdHex));
                 $blockNumber = (int) hexdec(str_replace('0x', '', $blockNumberHex));
 
-                return new NetworkDTO(
-                    chainId: $chainId,
-                    networkName: (string) $this->config->get('blockchain.network_name', 'sepolia'),
-                    blockNumber: $blockNumber,
-                    rpcUrl: (string) $this->config->get('blockchain.rpc_url'),
-                    isConnected: true,
-                    latencyMs: $latencyMs
-                );
+                return [
+                    'chainId' => $chainId,
+                    'networkName' => (string) $this->config->get('blockchain.network_name', 'sepolia'),
+                    'blockNumber' => $blockNumber,
+                    'rpcUrl' => (string) $this->config->get('blockchain.rpc_url'),
+                    'isConnected' => true,
+                    'latencyMs' => $latencyMs,
+                ];
             } catch (Throwable) {
-                return new NetworkDTO(
-                    chainId: (int) $this->config->get('blockchain.chain_id', 11155111),
-                    networkName: (string) $this->config->get('blockchain.network_name', 'sepolia'),
-                    blockNumber: 0,
-                    rpcUrl: (string) $this->config->get('blockchain.rpc_url'),
-                    isConnected: false,
-                    latencyMs: 0.0
-                );
+                return [
+                    'chainId' => (int) $this->config->get('blockchain.chain_id', 11155111),
+                    'networkName' => (string) $this->config->get('blockchain.network_name', 'sepolia'),
+                    'blockNumber' => 0,
+                    'rpcUrl' => (string) $this->config->get('blockchain.rpc_url'),
+                    'isConnected' => false,
+                    'latencyMs' => 0.0,
+                ];
             }
         });
+
+        $dto = new NetworkDTO(
+            chainId: (int) ($data['chainId'] ?? 11155111),
+            networkName: (string) ($data['networkName'] ?? 'sepolia'),
+            blockNumber: (int) ($data['blockNumber'] ?? 0),
+            rpcUrl: (string) ($data['rpcUrl'] ?? ''),
+            isConnected: (bool) ($data['isConnected'] ?? false),
+            latencyMs: (float) ($data['latencyMs'] ?? 0.0)
+        );
+
+        if (!$dto->isConnected) {
+            $this->cache->forget('blockchain:network');
+        }
+
+        return $dto;
     }
 
     /**

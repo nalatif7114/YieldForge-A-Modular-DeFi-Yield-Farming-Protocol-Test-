@@ -45,7 +45,10 @@ class SyncManager implements SyncManagerInterface
             $to = min($onChainLatest, $from + $batchSize - 1);
 
             return ['from' => $from, 'to' => $to];
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("SyncManager determineSyncRange error: {$e->getMessage()}", [
+                'trace' => $e->getTraceAsString(),
+            ]);
             return ['from' => 0, 'to' => 0];
         }
     }

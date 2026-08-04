@@ -28,13 +28,13 @@ class EthereumCodec
      * Pre-calculated event topic hashes.
      */
     private const EVENT_TOPICS = [
-        'Staked' => '0x9e71bc8eea02a63969f509818f2daeb92bc7264d97b1cd0ef59b30ea9b427dae',
-        'Withdrawn' => '0x7084f54761c8dbea2d4b3870468a91078b200d3e065b900dbc1d4e93515862fe',
+        'Staked' => '0x9e71bc8eea02a63969f509818f2dafb9254532904319f9dbda79b67bd34a5f3d',
+        'Withdrawn' => '0x7084f5476618d8e60b11ef0d7d3f06914655adb8793e28ff7f018d4c76d505d5',
         'Transfer' => '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-        'TokensMinted' => '0x23a650172bf42129e7188d3e8e244799042b45152a420b92db9842a246b9a8cf',
-        'TokensBurned' => '0xcc37b2d56a31034f55395a12217c49363a0a4c5a0ec7b9e735492d2427a1955b',
-        'Paused' => '0x62e78cf0105684a812569db15d023285afe0f01f1fb053e170ea6771f9ed7992',
-        'Unpaused' => '0x5db98dbe39f36f620b15ea71738e062639692c3dbf5b9d232599cd1032df4a17',
+        'TokensMinted' => '0x3f2c9d57c068687834f0de942a9babb9e5acab57d516d3480a3c16ee165a4273',
+        'TokensBurned' => '0xfd38818f5291bf0bb3a2a48aadc06ba8757865d1dabd804585338aab3009dcb6',
+        'Paused' => '0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258',
+        'Unpaused' => '0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa',
     ];
 
     /**

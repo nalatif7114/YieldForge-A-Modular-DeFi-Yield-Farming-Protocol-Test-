@@ -24,7 +24,7 @@ class BlockchainServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(EthereumCodec::class, fn () => new EthereumCodec());
+        $this->app->bind(EthereumCodec::class, fn () => new EthereumCodec());
 
         $this->app->singleton(RpcClientInterface::class, RpcClient::class);
         $this->app->singleton(AbiLoaderInterface::class, AbiLoader::class);

@@ -134,9 +134,12 @@ class RpcClient implements RpcClientInterface
             $attempt++;
 
             try {
-                $response = Http::timeout($this->timeout)
-                    ->acceptJson()
-                    ->post($this->rpcUrl, $body);
+                $http = Http::timeout($this->timeout)->acceptJson();
+                if (!$this->config->get('blockchain.verify_ssl', false)) {
+                    $http = $http->withoutVerifying();
+                }
+
+                $response = $http->post($this->rpcUrl, $body);
 
                 if ($response->successful()) {
                     $json = $response->json();

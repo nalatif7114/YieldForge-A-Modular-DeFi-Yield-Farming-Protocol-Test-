@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'rpc_url' => env('BLOCKCHAIN_RPC_URL', 'https://ethereum-sepolia-rpc.publicnode.com'),
+    'verify_ssl' => env('BLOCKCHAIN_VERIFY_SSL', false),
     'chain_id' => (int) env('BLOCKCHAIN_CHAIN_ID', 11155111),
     'network_name' => env('BLOCKCHAIN_NETWORK_NAME', 'sepolia'),
     'timeout' => (int) env('BLOCKCHAIN_RPC_TIMEOUT', 10),

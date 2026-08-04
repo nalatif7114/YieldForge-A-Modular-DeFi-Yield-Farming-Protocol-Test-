@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Services\Indexer;
 
 use App\Models\BlockchainEvent;
+use App\Services\Blockchain\Contracts\AbiLoaderInterface;
 use App\Services\Blockchain\Contracts\NetworkServiceInterface;
 use App\Services\Indexer\DTO\IndexerContext;
 use App\Services\Indexer\DTO\IndexerStateDTO;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Throwable;
 
@@ -16,6 +18,8 @@ class IndexerHealthService
     public function __construct(
         private readonly NetworkServiceInterface $networkService,
         private readonly BlockCursor $blockCursor,
+        private readonly AbiLoaderInterface $abiLoader,
+        private readonly CacheRepository $cache,
         private readonly ConfigRepository $config
     ) {}
 
@@ -26,6 +30,23 @@ class IndexerHealthService
             network: (string) $this->config->get('blockchain.network_name', 'sepolia'),
             rpcEndpoint: (string) $this->config->get('blockchain.rpc_url')
         );
+
+        $expectedChainId = (int) $this->config->get('blockchain.chain_id', 11155111);
+        $lastSyncDurationMs = (float) $this->cache->get('indexer_metrics:last_sync_duration', 0.0);
+
+        // Check ABI loading
+        $abiLoaded = true;
+        try {
+            $this->abiLoader->getAbi('YieldForgeToken');
+            $this->abiLoader->getAbi('YieldForgeStaking');
+        } catch (Throwable) {
+            $abiLoaded = false;
+        }
+
+        // Check contracts config
+        $tokenAddr = (string) $this->config->get('blockchain.contracts.token.address');
+        $stakingAddr = (string) $this->config->get('blockchain.contracts.staking.address');
+        $contractsLoaded = $tokenAddr !== '' && $stakingAddr !== '';
 
         try {
             $networkInfo = $this->networkService->getNetworkInfo();
@@ -43,21 +64,37 @@ class IndexerHealthService
             };
 
             return new IndexerStateDTO(
+                rpcConnected: $networkInfo->isConnected,
+                rpcLatencyMs: $networkInfo->latencyMs,
+                chainId: $networkInfo->chainId,
+                expectedChainId: $expectedChainId,
+                latestRpcBlock: $onChainLatest,
+                latestIndexedBlock: $indexedLatest,
+                syncLag: $lag,
+                contractsLoaded: $contractsLoaded,
+                abiLoaded: $abiLoaded,
+                lastRpcError: $networkInfo->isConnected ? null : 'RPC connection failed',
+                lastSyncDurationMs: $lastSyncDurationMs,
                 network: $context->network,
-                latestBlock: $onChainLatest,
-                indexedBlock: $indexedLatest,
-                lag: $lag,
                 events: $totalEvents,
                 status: $status,
                 lastSync: now()->toIso8601String(),
                 projectionVersion: (string) $this->config->get('blockchain.projection_version', '1.0.0')
             );
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             return new IndexerStateDTO(
+                rpcConnected: false,
+                rpcLatencyMs: 0.0,
+                chainId: $expectedChainId,
+                expectedChainId: $expectedChainId,
+                latestRpcBlock: 0,
+                latestIndexedBlock: 0,
+                syncLag: 0,
+                contractsLoaded: $contractsLoaded,
+                abiLoaded: $abiLoaded,
+                lastRpcError: $e->getMessage(),
+                lastSyncDurationMs: $lastSyncDurationMs,
                 network: $context->network,
-                latestBlock: 0,
-                indexedBlock: 0,
-                lag: 0,
                 events: 0,
                 status: 'error',
                 lastSync: now()->toIso8601String(),

@@ -60,6 +60,17 @@ class EventService implements EventServiceInterface
                     if ($address !== '') {
                         $params['address'] = $address;
                     }
+                } else {
+                    $addresses = [];
+                    $contracts = (array) $this->config->get('blockchain.contracts', []);
+                    foreach ($contracts as $c) {
+                        if (!empty($c['address'])) {
+                            $addresses[] = $c['address'];
+                        }
+                    }
+                    if (!empty($addresses)) {
+                        $params['address'] = count($addresses) === 1 ? $addresses[0] : array_values(array_unique($addresses));
+                    }
                 }
 
                 $params['fromBlock'] = $fromBlock !== null ? '0x' . dechex($fromBlock) : '0x0';

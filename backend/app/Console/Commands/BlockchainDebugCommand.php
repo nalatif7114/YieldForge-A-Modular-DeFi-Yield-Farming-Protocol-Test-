@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\BlockchainEvent;
-
 use App\Models\IndexedBlock;
 use App\Models\PoolSnapshot;
 use App\Models\ProjectionCheckpoint;
@@ -17,6 +16,8 @@ use App\Services\Blockchain\Contracts\NetworkServiceInterface;
 use App\Services\Blockchain\Contracts\RpcClientInterface;
 use App\Services\Blockchain\Support\EthereumCodec;
 use App\Services\Indexer\BlockCursor;
+use App\Services\Indexer\Contracts\ProjectionRegistryInterface;
+use App\Services\Indexer\DomainEvents\DomainEventFactory;
 use App\Services\Indexer\DTO\IndexerContext;
 use App\Services\Indexer\EventDispatcher;
 use App\Services\Indexer\LogProcessor;
@@ -26,7 +27,7 @@ class BlockchainDebugCommand extends Command
 {
     protected $signature = 'blockchain:debug {--from=} {--to=} {--range=1000}';
 
-    protected $description = 'Perform detailed runtime diagnostic audit on eth_getLogs and indexer pipeline';
+    protected $description = 'Perform detailed runtime diagnostic audit on eth_getLogs and indexer projection pipeline';
 
     public function handle(
         RpcClientInterface $rpcClient,
@@ -35,7 +36,9 @@ class BlockchainDebugCommand extends Command
         EthereumCodec $codec,
         AbiLoaderInterface $abiLoader,
         LogProcessor $logProcessor,
-        EventDispatcher $eventDispatcher
+        EventDispatcher $eventDispatcher,
+        ProjectionRegistryInterface $registry,
+        DomainEventFactory $eventFactory
     ): int {
         $this->info('Starting YieldForge Indexer Runtime Debug Audit...');
 
@@ -155,7 +158,6 @@ class BlockchainDebugCommand extends Command
                 if ($resolvedName === 'UnknownEvent') {
                     $logsDiscarded++;
                     $this->warn("Discarded log in tx {$log['transactionHash']}: Unknown topic0 [{$topic0}]");
-                    $this->line("  Debug compare: len=" . strlen($topic0Clean) . " hex=" . bin2hex($topic0Clean));
                 } else {
                     $logsDecoded++;
                     $this->info("Decoded log in tx {$log['transactionHash']}: Event [{$resolvedName}]");
@@ -168,19 +170,56 @@ class BlockchainDebugCommand extends Command
         $this->line("Logs discarded: {$logsDiscarded}");
 
         // ------------------------------------------------
-        // LogProcessor & Projection Audit
+        // ProjectionRegistry Audit
         // ------------------------------------------------
         $this->line("\n------------------------------------------------");
-        $this->line("LogProcessor & Projections");
+        $this->line("ProjectionRegistry & Projection Dispatch Audit");
         $this->line("------------------------------------------------");
+
+        $registeredProjections = $registry->getProjections();
+        $this->info("Registered Projections: " . count($registeredProjections));
+        foreach ($registeredProjections as $proj) {
+            $this->line(" - " . $proj->getProjectionName());
+        }
 
         $savedEvents = $logProcessor->process($context, $fromBlock, $toBlock);
         $insertedCount = count($savedEvents);
-        $eventDispatcher->dispatchBatch($savedEvents);
 
-        $this->line("Logs inserted into blockchain_events: {$insertedCount}");
-        $this->line("Duplicate detection result: Handled via unique constraint (transaction_hash, log_index)");
-        $this->line("Projection execution: Complete for all registered projections");
+        $this->line("\nProcessing Events & Updating Checkpoints:");
+        foreach ($savedEvents as $eModel) {
+            $domainEvent = $eventFactory->fromModel($eModel);
+            $this->line("\nEvent: {$domainEvent->eventName} (Tx {$domainEvent->transactionHash}, Block {$domainEvent->blockNumber})");
+
+            foreach ($registeredProjections as $proj) {
+                $pName = $proj->getProjectionName();
+                $supports = $proj->supports($domainEvent);
+
+                if ($supports) {
+                    $proj->handle($domainEvent);
+                    $blockCursor->updateCheckpoint(
+                        projectionName: $pName,
+                        blockNumber: $domainEvent->blockNumber,
+                        logIndex: $domainEvent->logIndex,
+                        version: (string) config('blockchain.projection_version', '1.0.0')
+                    );
+                    $ckpt = $blockCursor->getCheckpoint($pName);
+
+                    $this->info("  [EXECUTED] {$pName}: Handled event. Checkpoint block=#{$ckpt?->last_processed_block}, version={$ckpt?->projection_version}, updated_at={$ckpt?->updated_at}");
+                } else {
+                    $this->line("  [SKIPPED]  {$pName}: Event type [{$domainEvent->eventName}] not supported by this projection.");
+                }
+            }
+        }
+
+        // Also advance checkpoints for all projections to $toBlock
+        foreach ($registeredProjections as $proj) {
+            $pName = $proj->getProjectionName();
+            $blockCursor->updateCheckpoint(
+                projectionName: $pName,
+                blockNumber: $toBlock,
+                version: (string) config('blockchain.projection_version', '1.0.0')
+            );
+        }
 
         // ------------------------------------------------
         // Database Row Counts Audit
@@ -195,6 +234,11 @@ class BlockchainDebugCommand extends Command
         $this->line("reward_snapshots: " . RewardSnapshot::count());
         $this->line("protocol_statistics: " . ProtocolStatistic::count());
         $this->line("projection_checkpoints: " . ProjectionCheckpoint::count());
+
+        $this->line("\nProjection Checkpoint States:");
+        foreach (ProjectionCheckpoint::all() as $cp) {
+            $this->line(" - {$cp->projection_name}: block #{$cp->last_processed_block} (v{$cp->projection_version}), updated_at: {$cp->updated_at}");
+        }
         $this->line("------------------------------------------------\n");
 
         return Command::SUCCESS;

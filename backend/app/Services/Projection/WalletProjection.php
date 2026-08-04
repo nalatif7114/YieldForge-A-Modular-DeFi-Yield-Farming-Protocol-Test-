@@ -140,26 +140,48 @@ class WalletProjection implements ProjectionInterface
 
         if ($from !== '' && $from !== '0x0000000000000000000000000000000000000000') {
             /** @var WalletPosition $posFrom */
-            $posFrom = WalletPosition::firstOrCreate(['wallet' => $from]);
-            $newRaw = (string) bcsub($posFrom->token_balance_raw, $event->valueRaw);
+            $posFrom = WalletPosition::firstOrCreate(
+                ['wallet' => $from],
+                [
+                    'staked_balance_raw' => '0',
+                    'staked_balance_formatted' => '0',
+                    'token_balance_raw' => '0',
+                    'token_balance_formatted' => '0',
+                    'pool_share_percentage' => 0.0,
+                    'last_updated_block' => $event->blockNumber,
+                ]
+            );
+            $currentRaw = (string) ($posFrom->token_balance_raw ?? '0');
+            $newRaw = (string) bcsub($currentRaw, $event->valueRaw);
             if (bccomp($newRaw, '0') < 0) {
                 $newRaw = '0';
             }
             $posFrom->update([
                 'token_balance_raw' => $newRaw,
                 'token_balance_formatted' => $this->codec->formatUnits($newRaw, 18),
-                'last_updated_block' => max($posFrom->last_updated_block, $event->blockNumber),
+                'last_updated_block' => max((int) ($posFrom->last_updated_block ?? 0), $event->blockNumber),
             ]);
         }
 
         if ($to !== '' && $to !== '0x0000000000000000000000000000000000000000') {
             /** @var WalletPosition $posTo */
-            $posTo = WalletPosition::firstOrCreate(['wallet' => $to]);
-            $newRaw = (string) bcadd($posTo->token_balance_raw, $event->valueRaw);
+            $posTo = WalletPosition::firstOrCreate(
+                ['wallet' => $to],
+                [
+                    'staked_balance_raw' => '0',
+                    'staked_balance_formatted' => '0',
+                    'token_balance_raw' => '0',
+                    'token_balance_formatted' => '0',
+                    'pool_share_percentage' => 0.0,
+                    'last_updated_block' => $event->blockNumber,
+                ]
+            );
+            $currentRaw = (string) ($posTo->token_balance_raw ?? '0');
+            $newRaw = (string) bcadd($currentRaw, $event->valueRaw);
             $posTo->update([
                 'token_balance_raw' => $newRaw,
                 'token_balance_formatted' => $this->codec->formatUnits($newRaw, 18),
-                'last_updated_block' => max($posTo->last_updated_block, $event->blockNumber),
+                'last_updated_block' => max((int) ($posTo->last_updated_block ?? 0), $event->blockNumber),
             ]);
         }
     }

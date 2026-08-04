@@ -23,6 +23,7 @@ class BlockchainIndexer implements BlockchainIndexerInterface
         private readonly LogProcessor $logProcessor,
         private readonly ReorgDetectorInterface $reorgDetector,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Contracts\ProjectionRegistryInterface $projectionRegistry,
         private readonly BlockCursor $blockCursor,
         private readonly IndexerMetricsService $metricsService,
         private readonly ConfigRepository $config,
@@ -74,19 +75,33 @@ class BlockchainIndexer implements BlockchainIndexerInterface
                 $fromBlock = $divergence + 1;
             }
 
-            // Fetch and save raw events
-            $savedEvents = $this->logProcessor->process($context, $fromBlock, $toBlock);
+            $savedEvents = [];
+            $eventsCount = 0;
 
-            // Dispatch domain events to projections
-            $this->eventDispatcher->dispatchBatch($savedEvents);
+            \Illuminate\Support\Facades\DB::transaction(function () use ($context, $fromBlock, $toBlock, &$savedEvents, &$eventsCount): void {
+                // Fetch and save raw events
+                $savedEvents = $this->logProcessor->process($context, $fromBlock, $toBlock);
 
-            // Update block cursor for processed range
+                // Dispatch domain events to projections
+                $this->eventDispatcher->dispatchBatch($savedEvents);
+
+                // Update block cursor for processed range
+                $eventsCount = count($savedEvents);
+                for ($b = $fromBlock; $b <= $toBlock; $b++) {
+                    $this->blockCursor->updateCursor($context, $b, null, null, $eventsCount);
+                }
+
+                // Update projection checkpoints for all registered projections
+                foreach ($this->projectionRegistry->getProjections() as $projection) {
+                    $this->blockCursor->updateCheckpoint(
+                        projectionName: $projection->getProjectionName(),
+                        blockNumber: $toBlock,
+                        version: (string) $this->config->get('blockchain.projection_version', '1.0.0')
+                    );
+                }
+            });
+
             $blocksProcessed = max(1, ($toBlock - $fromBlock) + 1);
-            $eventsCount = count($savedEvents);
-
-            for ($b = $fromBlock; $b <= $toBlock; $b++) {
-                $this->blockCursor->updateCursor($context, $b, null, null, $eventsCount);
-            }
 
             $durationMs = round((microtime(true) - $startTime) * 1000, 2);
             $this->metricsService->recordSync($blocksProcessed, $eventsCount, $durationMs);

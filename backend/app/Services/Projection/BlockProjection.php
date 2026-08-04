@@ -22,14 +22,19 @@ class BlockProjection implements ProjectionInterface
 
     public function handle(AbstractDomainEvent $event): void
     {
-        IndexedBlock::updateOrCreate(
+        /** @var IndexedBlock $block */
+        $block = IndexedBlock::firstOrCreate(
             ['block_number' => $event->blockNumber],
             [
-                'events_count' => \Illuminate\Database\Eloquent\Casts\Attribute::make(), // Handled via increment
-                'timestamp' => $event->timestamp ?? now(),
+                'chain_id' => (int) config('blockchain.chain_id', 11155111),
+                'network' => (string) config('blockchain.network_name', 'sepolia'),
+                'events_count' => 0,
                 'status' => 'processed',
+                'timestamp' => $event->timestamp ?? now(),
             ]
         );
+
+        $block->increment('events_count');
     }
 
     public function reset(): void

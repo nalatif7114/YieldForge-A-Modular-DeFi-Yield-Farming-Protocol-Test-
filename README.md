@@ -80,7 +80,7 @@ Unlike typical DeFi applications, YieldForge treats **protocol state as a observ
 
 ---
 
-## 📂 Project Directory Structure
+## 📂 Project Directory Structure.
 
 ```
 YieldForge/

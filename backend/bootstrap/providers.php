@@ -7,4 +7,6 @@ return [
     App\Providers\BlockchainServiceProvider::class,
     App\Providers\IndexerServiceProvider::class,
     App\Providers\AnalyticsServiceProvider::class,
+    App\Providers\MonitoringServiceProvider::class,
+    App\Providers\SecurityServiceProvider::class,
 ];

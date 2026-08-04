@@ -11,19 +11,47 @@ use App\Http\Controllers\Api\V1\EventController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HistoryAnalyticsController;
 use App\Http\Controllers\Api\V1\IndexerController;
+use App\Http\Controllers\Api\V1\Monitoring\AlertMonitoringController;
+use App\Http\Controllers\Api\V1\Monitoring\CacheMonitoringController;
+use App\Http\Controllers\Api\V1\Monitoring\ExportMonitoringController;
+use App\Http\Controllers\Api\V1\Monitoring\HistoricalMonitoringController;
+use App\Http\Controllers\Api\V1\Monitoring\IndexerHistoryMonitoringController;
+use App\Http\Controllers\Api\V1\Monitoring\MonitoringDashboardController;
+use App\Http\Controllers\Api\V1\Monitoring\MonitoringHealthController;
+use App\Http\Controllers\Api\V1\Monitoring\PerformanceMonitoringController;
+use App\Http\Controllers\Api\V1\Monitoring\QueueMonitoringController;
+use App\Http\Controllers\Api\V1\Monitoring\RpcMetricsMonitoringController;
 use App\Http\Controllers\Api\V1\NetworkController;
 use App\Http\Controllers\Api\V1\PoolAnalyticsController;
 use App\Http\Controllers\Api\V1\PoolController;
 use App\Http\Controllers\Api\V1\ProtocolAnalyticsController;
 use App\Http\Controllers\Api\V1\RewardAnalyticsController;
 use App\Http\Controllers\Api\V1\RewardController;
+use App\Http\Controllers\Api\V1\Security\ApiKeyManagementController;
+use App\Http\Controllers\Api\V1\Security\AuthController;
+use App\Http\Controllers\Api\V1\Security\SecurityMonitoringController;
+use App\Http\Controllers\Api\V1\Security\SiweAuthController;
 use App\Http\Controllers\Api\V1\StakeController;
 use App\Http\Controllers\Api\V1\StatsController;
 use App\Http\Controllers\Api\V1\TVLAnalyticsController;
 use App\Http\Controllers\Api\V1\WalletAnalyticsController;
+use App\Http\Middleware\JwtAuthMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
+    // Phase B6 Authentication Endpoints
+    Route::prefix('auth')->group(function (): void {
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/logout', [AuthController::class, 'logout'])->middleware(JwtAuthMiddleware::class);
+        Route::post('/refresh', [AuthController::class, 'refresh']);
+        Route::get('/me', [AuthController::class, 'me'])->middleware(JwtAuthMiddleware::class);
+
+        // SIWE Wallet Auth
+        Route::get('/nonce', [SiweAuthController::class, 'nonce']);
+        Route::post('/verify', [SiweAuthController::class, 'verify']);
+    });
+
+    // Public / Core Endpoints
     Route::get('/network', [NetworkController::class, 'index']);
     Route::get('/contracts', [ContractController::class, 'index']);
     Route::get('/pools', [PoolController::class, 'index']);
@@ -56,5 +84,36 @@ Route::prefix('v1')->group(function (): void {
         });
 
         Route::get('/health', [AnalyticsHealthController::class, 'index']);
+    });
+
+    // Phase B5 Institutional Monitoring & Operations Platform
+    Route::prefix('monitoring')->group(function (): void {
+        Route::get('/dashboard', [MonitoringDashboardController::class, 'index']);
+        Route::get('/health', [MonitoringHealthController::class, 'show']);
+        Route::get('/queues', [QueueMonitoringController::class, 'index']);
+        Route::get('/cache', [CacheMonitoringController::class, 'index']);
+        Route::get('/indexer/history', [IndexerHistoryMonitoringController::class, 'index']);
+        Route::get('/rpc', [RpcMetricsMonitoringController::class, 'index']);
+
+        Route::get('/alerts', [AlertMonitoringController::class, 'index']);
+        Route::post('/alerts/{id}/acknowledge', [AlertMonitoringController::class, 'acknowledge']);
+        Route::get('/alerts/rules', [AlertMonitoringController::class, 'rules']);
+
+        Route::get('/history', [HistoricalMonitoringController::class, 'index']);
+        Route::get('/export/events', [ExportMonitoringController::class, 'events']);
+        Route::get('/export/metrics', [ExportMonitoringController::class, 'metrics']);
+        Route::get('/performance', [PerformanceMonitoringController::class, 'index']);
+    });
+
+    // Phase B6 Security & API Gateway Endpoints
+    Route::prefix('security')->group(function (): void {
+        Route::get('/dashboard', [SecurityMonitoringController::class, 'dashboard']);
+        Route::get('/audit', [SecurityMonitoringController::class, 'audit']);
+        Route::get('/rate-limit', [SecurityMonitoringController::class, 'rateLimit']);
+        Route::get('/sessions', [SecurityMonitoringController::class, 'sessions']);
+
+        Route::get('/api-keys', [ApiKeyManagementController::class, 'index']);
+        Route::post('/api-keys', [ApiKeyManagementController::class, 'store'])->middleware(JwtAuthMiddleware::class);
+        Route::delete('/api-keys/{id}', [ApiKeyManagementController::class, 'destroy'])->middleware(JwtAuthMiddleware::class);
     });
 });

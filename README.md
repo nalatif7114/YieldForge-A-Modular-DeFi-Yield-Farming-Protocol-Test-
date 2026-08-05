@@ -38,7 +38,6 @@ graph TD
 
 ---
 
-<<<<<<< HEAD
 ## 📂 Project Directory Structure.
 =======
 ## ✨ Core Features & Modules

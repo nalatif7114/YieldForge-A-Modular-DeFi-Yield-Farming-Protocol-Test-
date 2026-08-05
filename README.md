@@ -38,7 +38,7 @@ graph TD
 
 ---
 
-## 📂 Project Directory Structure.
+##  Project Directory Structure.
 =======
 ## ✨ Core Features & Modules
 >>>>>>> 79e0914d (docs: add enterprise architecture and technical documentation suite)

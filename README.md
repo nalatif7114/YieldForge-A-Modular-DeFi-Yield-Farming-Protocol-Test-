@@ -9,7 +9,7 @@ YieldForge is an enterprise-grade, event-driven DeFi Yield Farming & Staking Pro
 
 ---
 
-## 🌟 Architecture Overview
+##  Architecture Overview
 
 ```mermaid
 graph TD

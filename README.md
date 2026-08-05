@@ -28,7 +28,7 @@ graph TD
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Smart Contracts**: Solidity ^0.8.20, Ethers.js, Hardhat (Ethereum Sepolia Testnet)
 - **Backend Core**: PHP 8.2+, Laravel 11 framework, SQLite/PostgreSQL, Redis

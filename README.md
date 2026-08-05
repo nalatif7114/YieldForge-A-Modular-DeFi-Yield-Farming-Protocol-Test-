@@ -96,7 +96,7 @@ Result: **104 passed, 553 assertions**.
 
 ---
 
-## 📚 Complete Technical Documentation Suite (`docs/`)
+##  Complete Technical Documentation Suite (`docs/`)
 
 - [**Architecture Documentation**](docs/architecture.md): CQRS, Event Sourcing, Projection Engine & Layer Breakdown.
 - [**Blockchain Adapter Guide**](docs/blockchain.md): Smart contracts, JSON-RPC, Keccak-256 topic codec, event decoding.

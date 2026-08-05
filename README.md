@@ -40,7 +40,7 @@ graph TD
 
 ##  Project Directory Structure.
 =======
-## ✨ Core Features & Modules
+##  Core Features & Modules
 >>>>>>> 79e0914d (docs: add enterprise architecture and technical documentation suite)
 
 - **Phase B1 (Foundation)**: Deployed ERC20 YieldForge Token (`YF`) and YieldForgeStaking contracts on Sepolia testnet.

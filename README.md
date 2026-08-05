@@ -53,7 +53,7 @@ graph TD
 
 ---
 
-## 🚀 Quick Start Guide
+##  Quick Start Guide
 
 ### 1. Installation & Environment Setup
 ```bash

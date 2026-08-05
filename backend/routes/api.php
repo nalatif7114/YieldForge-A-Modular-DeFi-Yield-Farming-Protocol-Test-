@@ -25,6 +25,13 @@ use App\Http\Controllers\Api\V1\NetworkController;
 use App\Http\Controllers\Api\V1\PoolAnalyticsController;
 use App\Http\Controllers\Api\V1\PoolController;
 use App\Http\Controllers\Api\V1\ProtocolAnalyticsController;
+use App\Http\Controllers\Api\V1\Research\EventResearchController;
+use App\Http\Controllers\Api\V1\Research\FeatureResearchController;
+use App\Http\Controllers\Api\V1\Research\PoolResearchController;
+use App\Http\Controllers\Api\V1\Research\ResearchDashboardController;
+use App\Http\Controllers\Api\V1\Research\ResearchExportController;
+use App\Http\Controllers\Api\V1\Research\StatisticResearchController;
+use App\Http\Controllers\Api\V1\Research\WalletResearchController;
 use App\Http\Controllers\Api\V1\RewardAnalyticsController;
 use App\Http\Controllers\Api\V1\RewardController;
 use App\Http\Controllers\Api\V1\Security\ApiKeyManagementController;
@@ -115,5 +122,16 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/api-keys', [ApiKeyManagementController::class, 'index']);
         Route::post('/api-keys', [ApiKeyManagementController::class, 'store'])->middleware(JwtAuthMiddleware::class);
         Route::delete('/api-keys/{id}', [ApiKeyManagementController::class, 'destroy'])->middleware(JwtAuthMiddleware::class);
+    });
+
+    // Phase B7 Data Intelligence & Research Platform Endpoints
+    Route::prefix('research')->group(function (): void {
+        Route::get('/dashboard', [ResearchDashboardController::class, 'index']);
+        Route::get('/wallets', [WalletResearchController::class, 'index']);
+        Route::get('/pools', [PoolResearchController::class, 'index']);
+        Route::get('/features', [FeatureResearchController::class, 'index']);
+        Route::get('/events', [EventResearchController::class, 'index']);
+        Route::get('/statistics', [StatisticResearchController::class, 'index']);
+        Route::get('/export/{type}', [ResearchExportController::class, 'export']);
     });
 });

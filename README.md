@@ -1,200 +1,114 @@
-<p align="center">
-  <a href="https://github.com/nalatif7114/YieldForge-A-Modular-DeFi-Yield-Farming-Protocol-Test-">
-    <img src="assets/readme/hero-banner.svg" alt="YieldForge — Institutional Yield Infrastructure" width="100%">
-  </a>
-</p>
+# YieldForge Protocol — Enterprise DeFi Yield Farming & Data Intelligence Platform
 
-<p align="center">
-  <a href="https://github.com/nalatif7114/YieldForge-A-Modular-DeFi-Yield-Farming-Protocol-Test-"><img src="https://img.shields.io/badge/Build-Passing-22C55E?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build Status"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.0-D4AF37?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"></a>
-  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-16.2-080808?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js"></a>
-  <a href="https://soliditylang.org/"><img src="https://img.shields.io/badge/Solidity-0.8.28-E7C873?style=for-the-badge&logo=solidity&logoColor=black" alt="Solidity"></a>
-  <a href="https://hardhat.org/"><img src="https://img.shields.io/badge/Hardhat-2.29.0-FFF176?style=for-the-badge&logo=hardhat&logoColor=black" alt="Hardhat"></a>
-  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/TailwindCSS-v4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="TailwindCSS"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-161616?style=for-the-badge" alt="License"></a>
-</p>
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](docs/testing.md)
+[![Tests](https://img.shields.io/badge/tests-104%20passed%20%7C%20553%20assertions-success.svg)](docs/testing.md)
+[![Network](https://img.shields.io/badge/network-Ethereum%20Sepolia-blue.svg)](docs/blockchain.md)
+[![Architecture](https://img.shields.io/badge/architecture-CQRS%20%7C%20Event%20Sourcing-orange.svg)](docs/architecture.md)
+
+YieldForge is an enterprise-grade, event-driven DeFi Yield Farming & Staking Protocol backend and research platform built on Ethereum Sepolia testnet. The system combines an immutable event store, CQRS projection engine, real-time protocol analytics, institutional operational monitoring, enterprise API security gateway, and an ML research feature store.
 
 ---
 
+## 🌟 Architecture Overview
 
-## 🏛️ Executive Summary.
-
-**YieldForge** is a modular, institutional-grade DeFi yield infrastructure platform built for automated capital allocation, validator consensus coordination, and real-time protocol observability on Ethereum.
-
-Unlike typical DeFi applications, YieldForge treats **protocol state as a observable first-class system**. Built with a custom event-driven state machine (`ConsensusEngine`), YieldForge provides transparent verification of block proofs, automated yield routing, and institutional risk management.
-
----
-
-## ⚙️ Core Architecture Features
-
-<table width="100%">
-  <tr>
-    <td width="33%" valign="top">
-      <h3>⚡ Real-Time Consensus</h3>
-      <p>BFT supermajority verification validating zero-knowledge proof transitions before block state commitment.</p>
-    </td>
-    <td width="33%" valign="top">
-      <h3>🛡️ Validator Mesh</h3>
-      <p>8-node distributed topology executing real-time proof verification, state root signatures, and latency monitoring.</p>
-    </td>
-    <td width="33%" valign="top">
-      <h3>⚙️ Yield Engine</h3>
-      <p>Algorithmic execution loops auto-compounding liquidity pool returns with zero manual overhead or gas loss.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="33%" valign="top">
-      <h3>📊 Observability Platform</h3>
-      <p>Institutional SaaS control panel inspired by Stripe and Vercel for real-time asset tracking and telemetry.</p>
-    </td>
-    <td width="33%" valign="top">
-      <h3>📡 Protocol Telemetry</h3>
-      <p>Publish-subscribe event bus broadcasting sub-second state changes across UI, 3D WebGL mesh, and REST APIs.</p>
-    </td>
-    <td width="33%" valign="top">
-      <h3>🎁 Automated Rewards</h3>
-      <p>Continuous harvesting module harvesting secondary pool incentives directly back into vault shares.</p>
-    </td>
-  </tr>
-</table>
-
----
-
-## 🔄 Protocol Execution Pipeline
-
-<p align="center">
-  <img src="assets/readme/architecture-diagram.svg" alt="YieldForge Architecture Diagram" width="100%">
-</p>
+```mermaid
+graph TD
+    Sepolia["Ethereum Sepolia Testnet"] --> Adapter["B2 Blockchain Adapter"]
+    Adapter --> Indexer["B3 Event Sourcing Indexer"]
+    Indexer --> EventStore[("blockchain_events Store")]
+    EventStore --> Dispatcher["Event Dispatcher"]
+    Dispatcher --> Projections["Read Model Projections"]
+    Projections --> Analytics["B4 Analytics Engine"]
+    Projections --> Monitoring["B5 Operational Monitoring"]
+    Projections --> FeatureStore["B7 ML Feature Store"]
+    Gateway["B6 Security Gateway (JWT/SIWE/RBAC)"] --> Analytics
+    Gateway --> Monitoring
+    Gateway --> Research["B7 Research Platform"]
+```
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer | Technologies & Frameworks | Description |
-|---|---|---|
-| **Frontend Platform** | `Next.js 16` • `React 19` • `TypeScript 5` • `TailwindCSS v4` | Single-page institutional dashboard & landing platform |
-| **Motion & 3D Layer** | `React Three Fiber` • `Three.js` • `Framer Motion` • `Lenis` | Ambient 8-node gold validator topology & smooth continuous scroll |
-| **Smart Contracts** | `Solidity 0.8.28` • `Hardhat 2.29` • `OpenZeppelin v5` | ERC-20 `YFT` Token, ERC-4626 Vaults, Pausable & Reentrancy Guards |
-| **State Engine** | `ConsensusEngine` (Custom TypeScript Event Bus) | Central state machine driving protocol transitions & real-time telemetry |
-| **Backend API** | `Laravel 13 REST API` • `PostgreSQL` | Historical analytics, yield indexing, and transaction tracking |
+- **Smart Contracts**: Solidity ^0.8.20, Ethers.js, Hardhat (Ethereum Sepolia Testnet)
+- **Backend Core**: PHP 8.2+, Laravel 11 framework, SQLite/PostgreSQL, Redis
+- **Security & Gateway**: JWT (HS256), SIWE (EIP-4361 / EIP-191), HMAC-SHA256 Signatures, Argon2id
+- **Testing**: PHPUnit (104 Unit & Feature Tests, 553 Assertions)
+- **Frontend**: Next.js 14, React, TailwindCSS, Viem / Wagmi
 
 ---
 
+<<<<<<< HEAD
 ## 📂 Project Directory Structure.
+=======
+## ✨ Core Features & Modules
+>>>>>>> 79e0914d (docs: add enterprise architecture and technical documentation suite)
 
-```
-YieldForge/
-├── assets/
-│   └── readme/                       # Animated SVG Assets for GitHub Readme
-│       ├── hero-banner.svg           # Animated Institutional Hero Banner
-│       ├── status-panel.svg          # Live KPI Status Panel
-│       ├── architecture-diagram.svg  # 5-Stage Protocol Architecture Pipeline
-│       ├── roadmap-timeline.svg      # Protocol Roadmap Timeline
-│       └── footer-banner.svg        # Institutional Footer Banner
-│
-├── contracts/                        # Smart Contracts & Testing Suite
-│   ├── contracts/
-│   │   └── YieldForgeToken.sol       # YFT ERC-20 Token (Pausable & Custom Errors)
-│   ├── scripts/
-│   │   └── deploy.ts                 # Hardhat Deployment & ABI Export Script
-│   └── test/
-│       └── YieldForgeToken.test.ts   # Unit Test Suite (16 Passing Tests)
-│
-├── frontend/                         # Next.js 16 Web Application
-│   ├── src/
-│   │   ├── app/                      # Next.js App Router (Landing, /dashboard, /app)
-│   │   ├── components/
-│   │   │   ├── 3d/                   # Three.js Gold Validator Topology Mesh
-│   │   │   ├── landing/              # Institutional Storytelling Landing Sections
-│   │   │   └── telemetry/            # SaaS Dashboard & Portfolio Overview
-│   │   ├── engine/                   # ConsensusEngine Singleton Event Bus
-│   │   ├── hooks/                    # useConsensusEngine & useWallet Hooks
-│   │   └── store/                    # Zustand Protocol Store
-│
-└── backend/                          # Laravel REST API Engine
-```
+- **Phase B1 (Foundation)**: Deployed ERC20 YieldForge Token (`YF`) and YieldForgeStaking contracts on Sepolia testnet.
+- **Phase B2 (Blockchain Adapter)**: JSON-RPC `eth_getLogs` client, Keccak-256 topic signature codec, log decoding DTOs.
+- **Phase B3 (Event Sourcing & Indexer Engine)**: Atomic `blockchain_events` event store, 5 read model projections (`WalletProjection`, `PoolProjection`, `RewardProjection`, `ProtocolProjection`, `BlockProjection`), checkpointing, replay engine (`php artisan indexer:replay`).
+- **Phase B4 (Protocol Analytics Engine)**: Real-time TVL, dynamic APY, user position analytics, chart time-series datasets.
+- **Phase B5 (Institutional Monitoring Platform)**: System Health Score (0-100), alert rules engine, queue/cache monitoring, RPC metrics, operational export streams.
+- **Phase B6 (Enterprise Security & API Gateway)**: JWT authentication, SIWE wallet login, RBAC permission enforcement, API Keys with IP allowlists, HMAC request signing, rate limiting, audit logging.
+- **Phase B7 (Data Intelligence & Research Platform)**: 6 ML datasets (`wallet_behavior`, `pool_activity`, `reward_distribution`, `protocol_growth`, `staking_history`, `transaction_features`), 10 ML research features calculation, 5-point data quality validation, benchmark engine, JSON/CSV exports.
 
 ---
 
-## 🖥️ Platform Interface Preview
+## 🚀 Quick Start Guide
 
-<table width="100%">
-  <tr>
-    <td width="50%" align="center">
-      <h4>Institutional Landing Page</h4>
-      <img src="assets/readme/hero-banner.svg" alt="YieldForge Landing Page" width="100%" style="border-radius: 8px;">
-    </td>
-    <td width="50%" align="center">
-      <h4>Portfolio Application Dashboard</h4>
-      <img src="assets/readme/status-panel.svg" alt="YieldForge Application Dashboard" width="100%" style="border-radius: 8px;">
-    </td>
-  </tr>
-</table>
-
----
-
-## 🚀 Development Setup & Installation
-
-### Prerequisites
-- **Node.js**: `v20.0.0` or higher
-- **Package Manager**: `npm` or `pnpm`
-- **Solidity Compiler**: `0.8.28`
-
-### 1. Clone Repository & Install Dependencies
+### 1. Installation & Environment Setup
 ```bash
-git clone https://github.com/nalatif7114/YieldForge-A-Modular-DeFi-Yield-Farming-Protocol-Test-.git
-cd YieldForge
-```
+# Clone the repository and enter backend directory
+cd backend
 
-### 2. Smart Contracts (`contracts/`)
+# Install dependencies
+composer install
 
-#### Run Unit Tests
-```bash
-cd contracts
-npm install
-npx hardhat test
-```
-
-#### Deploy to Local Network
-```bash
-npx hardhat run scripts/deploy.ts --network hardhat
-```
-
-#### Deploy to Ethereum Sepolia Testnet
-```bash
+# Environment setup
 cp .env.example .env
-# Configure SEPOLIA_RPC_URL and PRIVATE_KEY in .env
-npx hardhat run scripts/deploy.ts --network sepolia
+php artisan key:generate
+
+# Database setup
+php artisan migrate --force
+php artisan db:seed --class=SecuritySeeder
 ```
 
-### 3. Frontend Web Application (`frontend/`)
+### 2. Running Backend Server & Indexer
 ```bash
-cd ../frontend
-npm install
-npm run dev
+# Start local server
+php artisan serve --port=8000
+
+# Run real-time blockchain indexer sync from Sepolia
+php artisan blockchain:sync
+
+# Run event sourcing projection replay
+php artisan indexer:replay
+
+# Run security audit & dataset build
+php artisan security:audit
+php artisan research:build
 ```
-Navigate to `http://localhost:3000` to launch the platform.
+
+### 3. Running Test Suite
+```bash
+php artisan test
+```
+Result: **104 passed, 553 assertions**.
 
 ---
 
-## 🗺️ Protocol Development Roadmap
+## 📚 Complete Technical Documentation Suite (`docs/`)
 
-<p align="center">
-  <img src="assets/readme/roadmap-timeline.svg" alt="YieldForge Protocol Development Roadmap" width="100%">
-</p>
-
----
-
-## 🔒 Enterprise Security & Governance
-
-- **Battle-Tested Standards**: Smart contracts inherit OpenZeppelin `v5` security implementations.
-- **Timelock Controls**: 48-hour timelock delay enforced for critical parameter upgrades.
-- **Auditable Integrity**: 100% open-source codebase with clean separation of protocol state and presentation layers.
-- **Non-Custodial Architecture**: Cryptographic asset ownership remains strictly with depositors.
-
-
-
-<p align="center">
-  <img src="assets/readme/footer-banner.svg" alt="YieldForge Footer Banner" width="100%">
-</p>
-# @athyana23@gmail.com
+- [**Architecture Documentation**](docs/architecture.md): CQRS, Event Sourcing, Projection Engine & Layer Breakdown.
+- [**Blockchain Adapter Guide**](docs/blockchain.md): Smart contracts, JSON-RPC, Keccak-256 topic codec, event decoding.
+- [**Event Sourcing Specification**](docs/event-sourcing.md): Event store, projection handlers, checkpoints, replay engine.
+- [**Protocol Analytics Guide**](docs/analytics.md): TVL, APY calculation, time-series aggregations, analytics API.
+- [**Monitoring & Operations Guide**](docs/monitoring.md): System Health Score (0-100), alert engine, queue/cache metrics.
+- [**Enterprise Security & Gateway Guide**](docs/security.md): JWT, SIWE (EIP-4361), RBAC, API Keys, request signatures, rate limiting.
+- [**Data Intelligence & Research Platform**](docs/research.md): ML feature engineering, feature store, data quality engine, dataset exports.
+- [**REST API Reference Specification**](docs/api.md): Complete guide to all 61 REST API endpoints.
+- [**Database Schema & ERD**](docs/database.md): Complete entity relationship diagrams and table specifications.
+- [**Deployment & Configuration Guide**](docs/deployment.md): Environment setup, Sepolia deployment, queues, scheduler.
+- [**Testing Strategy & Results**](docs/testing.md): Automated unit/feature test suite coverage (104 tests / 553 assertions).
+- [**System Diagrams Collection**](docs/diagrams.md): All Mermaid sequence, component, flowchart, and ERD diagrams.
+- [**Protocol Development Roadmap**](docs/roadmap.md): Completed phases (B1-B7) and future ML/AI roadmap (B8-B10).

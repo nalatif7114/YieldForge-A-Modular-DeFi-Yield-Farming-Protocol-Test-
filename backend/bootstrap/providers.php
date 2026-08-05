@@ -9,4 +9,5 @@ return [
     App\Providers\AnalyticsServiceProvider::class,
     App\Providers\MonitoringServiceProvider::class,
     App\Providers\SecurityServiceProvider::class,
+    App\Providers\ResearchServiceProvider::class,
 ];
